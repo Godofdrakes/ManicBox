@@ -8,4 +8,14 @@
         <UseWPF>true</UseWPF>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.ReactiveUI.Wpf" Version="1.0.14" />
+      <PackageReference Include="ReactiveUI.WPF" Version="19.6.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ApplicationDefinition Remove="App.xaml" />
+      <Page Include="App.xaml" />
+    </ItemGroup>
+
 </Project>
