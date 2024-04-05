@@ -1,6 +1,7 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
+using ManicBox.WPF.View;
+using ManicBox.WPF.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ManicBox.WPF;
 
@@ -21,7 +22,11 @@ public partial class App : Application
 
 	private void App_OnStartup( object sender, StartupEventArgs e )
 	{
-		this.MainWindow = new MainWindow();
+		this.MainWindow = new MainWindow
+		{
+			ViewModel = ActivatorUtilities.CreateInstance<MainWindowViewModel>( _serviceProvider )
+		};
+
 		this.MainWindow.Show();
 	}
 }

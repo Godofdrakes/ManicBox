@@ -1,0 +1,25 @@
+﻿<view:WindowView
+	x:Class="ManicBox.WPF.View.MainWindow"
+	x:TypeArguments="viewModel:MainWindowViewModel"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:ManicBox.WPF"
+	xmlns:view="clr-namespace:ManicBox.WPF.View"
+	xmlns:viewModel="clr-namespace:ManicBox.WPF.ViewModel"
+	xmlns:model="clr-namespace:ManicBox.WPF.Model"
+	mc:Ignorable="d"
+	d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}"
+	Title="MainWindow" Height="450" Width="800">
+	<Grid>
+		<ListView x:Name="ProcessList"
+			ItemsSource="{Binding ProcessList}">
+			<ListView.ItemTemplate>
+				<DataTemplate DataType="{x:Type model:ProcessId}">
+					<TextBlock Text="{Binding WindowTitle}" />
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	</Grid>
+</view:WindowView>
