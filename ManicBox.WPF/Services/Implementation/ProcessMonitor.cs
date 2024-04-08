@@ -27,19 +27,20 @@ public sealed class ProcessMonitor : IHostedService
 		// Don't bother monitoring ourself
 		var localProcessId = localProcess.Id;
 
-		var pollingRate = TimeSpan.FromSeconds( 1 );
-
-		_onStop = _processList.Connect( ObservableChangeSet.Create<ProcessInstance, ProcessId>( cache => Observable
-				.Interval( pollingRate, RxApp.MainThreadScheduler )
-				.Subscribe( _ =>
+		_onStop = _processList.Connect( ObservableChangeSet.Create<ProcessInstance, ProcessId>(
+			async ( cache, token ) =>
+			{
+				while ( !token.IsCancellationRequested )
 				{
+					await Task.Delay( TimeSpan.FromSeconds( 1 ), cancellationToken );
+
 					var processes = Process.GetProcesses();
 
 					try
 					{
 						var removedProcesses = cache.Keys.ToHashSet();
 
-						var currentProcesses = processes
+						var allProcesses = processes
 							.Where( p => p.Id != localProcessId )
 							.Where( p => p.MainWindowHandle != IntPtr.Zero )
 							.Where( p => !string.IsNullOrEmpty( p.ProcessName ) )
@@ -47,8 +48,7 @@ public sealed class ProcessMonitor : IHostedService
 							.Select( ProcessInstance.Create )
 							.ToList();
 
-						// If it's not in the current process list we're about to remove it from the cache
-						foreach ( ProcessInstance p in currentProcesses )
+						foreach ( ProcessInstance p in allProcesses )
 						{
 							removedProcesses.Remove( p.Id );
 						}
@@ -57,7 +57,7 @@ public sealed class ProcessMonitor : IHostedService
 						{
 							items.RemoveKeys( removedProcesses );
 
-							items.AddOrUpdate( currentProcesses );
+							items.AddOrUpdate( allProcesses );
 						} );
 					}
 					finally
@@ -67,7 +67,8 @@ public sealed class ProcessMonitor : IHostedService
 							process.Dispose();
 						}
 					}
-				} ),
+				}
+			},
 			p => p.Id ) );
 
 		return Task.CompletedTask;
