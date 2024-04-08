@@ -14,7 +14,7 @@ public class ProcessFilterService : IProcessFilterService
 		// @todo: save/load
 		_source.AddOrUpdate( new ProcessMatch( Guid.NewGuid(), "ManicBox", "ManicBox.Mock" ) );
 		_source.AddOrUpdate( new ProcessMatch( Guid.NewGuid(), "RuneLite" ) );
-		_source.AddOrUpdate( new ProcessMatch( Guid.NewGuid(), "FortniteClient" ) );
+		_source.AddOrUpdate( new ProcessMatch( Guid.NewGuid(), "UnrealEditor" ) );
 	}
 
 	public IObservable<bool> Matches( ProcessInstance process )
