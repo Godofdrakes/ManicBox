@@ -22,11 +22,6 @@ public sealed class ProcessMonitor : IHostedService
 
 	public Task StartAsync( CancellationToken cancellationToken )
 	{
-		using var localProcess = Process.GetCurrentProcess();
-
-		// Don't bother monitoring ourself
-		var localProcessId = localProcess.Id;
-
 		_onStop = _processList.Connect( ObservableChangeSet.Create<ProcessInstance, ProcessId>(
 			async ( cache, token ) =>
 			{
@@ -41,7 +36,6 @@ public sealed class ProcessMonitor : IHostedService
 						var removedProcesses = cache.Keys.ToHashSet();
 
 						var allProcesses = processes
-							.Where( p => p.Id != localProcessId )
 							.Where( p => p.MainWindowHandle != IntPtr.Zero )
 							.Where( p => !string.IsNullOrEmpty( p.ProcessName ) )
 							.Where( p => !string.IsNullOrEmpty( p.MainWindowTitle ) )
@@ -50,7 +44,7 @@ public sealed class ProcessMonitor : IHostedService
 
 						foreach ( ProcessInstance p in allProcesses )
 						{
-							removedProcesses.Remove( p.Id );
+							removedProcesses.Remove( p.GetProcessId() );
 						}
 
 						cache.Edit( items =>
@@ -69,7 +63,7 @@ public sealed class ProcessMonitor : IHostedService
 					}
 				}
 			},
-			p => p.Id ) );
+			p => p.GetProcessId() ) );
 
 		return Task.CompletedTask;
 	}

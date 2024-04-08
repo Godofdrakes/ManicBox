@@ -4,21 +4,29 @@ namespace ManicBox.WPF.Model;
 
 public class ProcessInstance
 {
-	public ProcessId Id { get; }
+	public string ProcessName { get; }
+
+	public int ProcessId { get; }
 
 	public string WindowTitle { get; }
 
-	public ProcessInstance( ProcessId processId, string windowTitle )
+	public ProcessInstance( string name, int id, string title )
 	{
-		ArgumentNullException.ThrowIfNull( processId );
-		ArgumentException.ThrowIfNullOrEmpty( windowTitle );
+		ArgumentException.ThrowIfNullOrEmpty( name );
+		ArgumentException.ThrowIfNullOrEmpty( title );
 
-		Id = processId;
-		WindowTitle = windowTitle;
+		ProcessName = name;
+		ProcessId = id;
+		WindowTitle = title;
+	}
+
+	public ProcessId GetProcessId()
+	{
+		return new ProcessId( ProcessName, ProcessId );
 	}
 
 	public static ProcessInstance Create( Process process )
 	{
-		return new ProcessInstance( ProcessId.Create( process ), process.MainWindowTitle );
+		return new ProcessInstance( process.ProcessName, process.Id, process.MainWindowTitle );
 	}
 }

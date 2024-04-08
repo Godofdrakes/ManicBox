@@ -9,11 +9,18 @@
 	xmlns:view="clr-namespace:ManicBox.WPF.View"
 	xmlns:viewModel="clr-namespace:ManicBox.WPF.ViewModel"
 	xmlns:model="clr-namespace:ManicBox.WPF.Model"
+	xmlns:control="clr-namespace:ManicBox.WPF.View.Control"
 	mc:Ignorable="d"
 	d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}"
 	Title="MainWindow" Height="450" Width="800">
 	<Grid>
-		<ListView x:Name="ProcessList"
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<ListView Grid.Column="0"
 			ItemsSource="{Binding ProcessList}">
 			<ListView.ItemTemplate>
 				<DataTemplate DataType="{x:Type model:ProcessInstance}">
@@ -21,5 +28,7 @@
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
+
+		<control:ProcessFilterView Grid.Column="1" x:Name="FilterView" />
 	</Grid>
 </view:WindowView>

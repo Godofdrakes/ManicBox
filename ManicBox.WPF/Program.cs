@@ -40,7 +40,8 @@ public static class Program
 
 		hostBuilder.ConfigureServices( services => services
 			.AddHostedServices( Assembly.GetExecutingAssembly() )
-			.AddSingleton<IProcessList, ProcessList>() );
+			.AddSingleton<IProcessList, ProcessList>()
+			.AddSingleton<IProcessFilterService, ProcessFilterService>() );
 
 		hostBuilder.UseWpfLifetime();
 

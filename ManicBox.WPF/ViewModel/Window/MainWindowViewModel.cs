@@ -11,14 +11,21 @@ namespace ManicBox.WPF.ViewModel;
 
 public class MainWindowViewModel : WindowViewModel
 {
+	public ProcessFilterViewModel ProcessFilterViewModel { get; }
+
 	public ReadOnlyObservableCollection<ProcessInstance> ProcessList => _processList;
 
 	private readonly ReadOnlyObservableCollection<ProcessInstance> _processList;
 
-	private readonly SourceCache<ProcessInstance, ProcessId> _cache = new( p => p.Id );
+	private readonly SourceCache<ProcessInstance, ProcessId> _cache = new( p => p.GetProcessId() );
 
-	public MainWindowViewModel( ILogger<MainWindowViewModel> logger, IProcessList processList )
+	public MainWindowViewModel(
+		ILogger<MainWindowViewModel> logger,
+		IProcessList processList,
+		IProcessFilterService processFilterService )
 	{
+		ProcessFilterViewModel = new ProcessFilterViewModel( processFilterService );
+
 		_cache.Connect()
 			.Bind( out _processList )
 			.Subscribe();
@@ -27,8 +34,6 @@ public class MainWindowViewModel : WindowViewModel
 		{
 			processList.Processes
 				.Connect()
-				.OnItemAdded( id => logger.LogWarning( "Added {Process}", id.Id.Name ) )
-				.OnItemRemoved( id => logger.LogWarning( "Removed {Process}", id.Id.Name ) )
 				.SubscribeOn( RxApp.MainThreadScheduler )
 				.ObserveOn( RxApp.MainThreadScheduler )
 				.PopulateInto( _cache )

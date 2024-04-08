@@ -11,7 +11,7 @@ public class ProcessList : IProcessList
 
 	public ProcessList()
 	{
-		_source = new SourceCache<ProcessInstance, ProcessId>( process => process.Id );
+		_source = new SourceCache<ProcessInstance, ProcessId>( process => process.GetProcessId() );
 	}
 
 	public IDisposable Connect( IObservable<IChangeSet<ProcessInstance, ProcessId>> observable )
