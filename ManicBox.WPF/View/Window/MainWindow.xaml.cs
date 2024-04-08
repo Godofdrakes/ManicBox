@@ -15,6 +15,11 @@ public partial class MainWindow
 		this.WhenActivated( d =>
 		{
 			this.OneWayBind( ViewModel,
+					viewModel => viewModel.ProcessListViewModel,
+					view => view.ListView.ViewModel )
+				.DisposeWith( d );
+
+			this.OneWayBind( ViewModel,
 					viewModel => viewModel.ProcessFilterViewModel,
 					view => view.FilterView.ViewModel )
 				.DisposeWith( d );
