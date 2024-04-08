@@ -21,7 +21,7 @@ public class MainWindowViewModel : WindowViewModel
 
 	public MainWindowViewModel(
 		ILogger<MainWindowViewModel> logger,
-		IProcessList processList,
+		IProcessListService processListService,
 		IProcessFilterService processFilterService )
 	{
 		ProcessFilterViewModel = new ProcessFilterViewModel( processFilterService );
@@ -32,7 +32,7 @@ public class MainWindowViewModel : WindowViewModel
 
 		this.WhenActivated( d =>
 		{
-			processList.Processes
+			processListService.Processes
 				.Connect()
 				.SubscribeOn( RxApp.MainThreadScheduler )
 				.ObserveOn( RxApp.MainThreadScheduler )

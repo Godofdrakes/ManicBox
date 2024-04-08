@@ -3,7 +3,7 @@ using ManicBox.WPF.Model;
 
 namespace ManicBox.WPF.Services;
 
-public interface IProcessList
+public interface IProcessListService
 {
 	IObservableCache<ProcessInstance, ProcessId> Processes { get; }
 

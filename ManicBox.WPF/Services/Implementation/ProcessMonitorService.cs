@@ -1,28 +1,26 @@
 ﻿using System.Diagnostics;
-using System.Reactive.Linq;
 using DynamicData;
 using ManicBox.WPF.Model;
 using Microsoft.Extensions.Hosting;
-using ReactiveUI;
 
 namespace ManicBox.WPF.Services;
 
-public sealed class ProcessMonitor : IHostedService
+public sealed class ProcessMonitorService : IHostedService
 {
-	private readonly IProcessList _processList;
+	private readonly IProcessListService _processListService;
 
 	private IDisposable? _onStop;
 
-	public ProcessMonitor( IProcessList processList )
+	public ProcessMonitorService( IProcessListService processListService )
 	{
-		ArgumentNullException.ThrowIfNull( processList );
+		ArgumentNullException.ThrowIfNull( processListService );
 
-		_processList = processList;
+		_processListService = processListService;
 	}
 
 	public Task StartAsync( CancellationToken cancellationToken )
 	{
-		_onStop = _processList.Connect( ObservableChangeSet.Create<ProcessInstance, ProcessId>(
+		_onStop = _processListService.Connect( ObservableChangeSet.Create<ProcessInstance, ProcessId>(
 			async ( cache, token ) =>
 			{
 				while ( !token.IsCancellationRequested )

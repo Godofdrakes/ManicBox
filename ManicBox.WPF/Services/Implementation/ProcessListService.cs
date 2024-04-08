@@ -3,13 +3,13 @@ using ManicBox.WPF.Model;
 
 namespace ManicBox.WPF.Services;
 
-public class ProcessList : IProcessList
+public class ProcessListService : IProcessListService
 {
 	public IObservableCache<ProcessInstance, ProcessId> Processes => _source.AsObservableCache();
 
 	private readonly SourceCache<ProcessInstance, ProcessId> _source;
 
-	public ProcessList()
+	public ProcessListService()
 	{
 		_source = new SourceCache<ProcessInstance, ProcessId>( process => process.GetProcessId() );
 	}
