@@ -2,12 +2,12 @@
 
 namespace ManicBox.WPF.Model;
 
-public record ProcessId( string ProcessName, string WindowTitle )
+public record ProcessId( string Name, int Id )
 {
 	public static ProcessId Create( Process process )
 	{
 		ArgumentNullException.ThrowIfNull( process );
 
-		return new ProcessId( process.ProcessName, process.MainWindowTitle );
+		return new ProcessId( process.ProcessName, process.Id );
 	}
 }

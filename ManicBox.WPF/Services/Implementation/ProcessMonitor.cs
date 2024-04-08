@@ -1,13 +1,17 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Reactive.Linq;
+using DynamicData;
 using ManicBox.WPF.Model;
 using Microsoft.Extensions.Hosting;
+using ReactiveUI;
 
 namespace ManicBox.WPF.Services;
 
-public sealed class ProcessMonitor : BackgroundService
+public sealed class ProcessMonitor : IHostedService
 {
 	private readonly IProcessList _processList;
+
+	private IDisposable? _onStop;
 
 	public ProcessMonitor( IProcessList processList )
 	{
@@ -16,43 +20,64 @@ public sealed class ProcessMonitor : BackgroundService
 		_processList = processList;
 	}
 
-	protected override Task ExecuteAsync( CancellationToken token )
+	public Task StartAsync( CancellationToken cancellationToken )
 	{
-		return Scan( token );
+		using var localProcess = Process.GetCurrentProcess();
+
+		// Don't bother monitoring ourself
+		var localProcessId = localProcess.Id;
+
+		var pollingRate = TimeSpan.FromSeconds( 1 );
+
+		_onStop = _processList.Connect( ObservableChangeSet.Create<ProcessInstance, ProcessId>( cache => Observable
+				.Interval( pollingRate, RxApp.MainThreadScheduler )
+				.Subscribe( _ =>
+				{
+					var processes = Process.GetProcesses();
+
+					try
+					{
+						var removedProcesses = cache.Keys.ToHashSet();
+
+						var currentProcesses = processes
+							.Where( p => p.Id != localProcessId )
+							.Where( p => p.MainWindowHandle != IntPtr.Zero )
+							.Where( p => !string.IsNullOrEmpty( p.ProcessName ) )
+							.Where( p => !string.IsNullOrEmpty( p.MainWindowTitle ) )
+							.Select( ProcessInstance.Create )
+							.ToList();
+
+						// If it's not in the current process list we're about to remove it from the cache
+						foreach ( ProcessInstance p in currentProcesses )
+						{
+							removedProcesses.Remove( p.Id );
+						}
+
+						cache.Edit( items =>
+						{
+							items.RemoveKeys( removedProcesses );
+
+							items.AddOrUpdate( currentProcesses );
+						} );
+					}
+					finally
+					{
+						foreach ( Process process in processes )
+						{
+							process.Dispose();
+						}
+					}
+				} ),
+			p => p.Id ) );
+
+		return Task.CompletedTask;
 	}
 
-	private async Task Scan( CancellationToken token )
+	public Task StopAsync( CancellationToken cancellationToken )
 	{
-		while (!token.IsCancellationRequested)
-		{
-			try
-			{
-				await Task.Delay( TimeSpan.FromSeconds( 1 ), token );
+		_onStop?.Dispose();
+		_onStop = null;
 
-				var processes = Process.GetProcesses();
-
-				try
-				{
-					_processList.Update( processes
-						.Where( process => process.MainWindowHandle != IntPtr.Zero )
-						.Where( process => !string.IsNullOrEmpty( process.MainWindowTitle ) )
-						.Where( process => !string.IsNullOrEmpty( process.ProcessName ) )
-						.Select( ProcessId.Create )
-						.ToImmutableList() );
-				}
-				finally
-				{
-					foreach ( Process process in processes )
-					{
-						process.Dispose();
-					}
-				}
-			}
-			catch (TaskCanceledException)
-			{
-				// Clear the process list, the loop will now end
-				_processList.Update( ImmutableList<ProcessId>.Empty );
-			}
-		}
+		return Task.CompletedTask;
 	}
 }

@@ -5,7 +5,7 @@ namespace ManicBox.WPF.Services;
 
 public interface IProcessList
 {
-	IObservable<IChangeSet<ProcessId, ProcessId>> AllProcesses();
+	IObservableCache<ProcessInstance, ProcessId> Processes { get; }
 
-	void Update( IReadOnlyCollection<ProcessId> allProcesses );
+	IDisposable Connect( IObservable<IChangeSet<ProcessInstance, ProcessId>> observable );
 }

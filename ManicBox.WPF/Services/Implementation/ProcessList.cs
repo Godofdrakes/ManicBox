@@ -1,43 +1,21 @@
-﻿using System.Collections.Immutable;
-using DynamicData;
+﻿using DynamicData;
 using ManicBox.WPF.Model;
 
 namespace ManicBox.WPF.Services;
 
 public class ProcessList : IProcessList
 {
-	private readonly SourceCache<ProcessId, ProcessId> _source;
+	public IObservableCache<ProcessInstance, ProcessId> Processes => _source.AsObservableCache();
+
+	private readonly SourceCache<ProcessInstance, ProcessId> _source;
 
 	public ProcessList()
 	{
-		_source = new SourceCache<ProcessId, ProcessId>( id => id );
+		_source = new SourceCache<ProcessInstance, ProcessId>( process => process.Id );
 	}
 
-	public IObservable<IChangeSet<ProcessId, ProcessId>> AllProcesses()
+	public IDisposable Connect( IObservable<IChangeSet<ProcessInstance, ProcessId>> observable )
 	{
-		return _source.Connect();
-	}
-
-	public void Update( IReadOnlyCollection<ProcessId> allProcesses )
-	{
-		var all = allProcesses.ToImmutableHashSet();
-
-		foreach ( ProcessId id in _source.Items )
-		{
-			if ( !all.Contains( id ) )
-			{
-				_source.RemoveKey( id );
-			}
-		}
-
-		var known = _source.Items.ToImmutableHashSet();
-
-		foreach ( ProcessId id in allProcesses )
-		{
-			if ( !known.Contains( id ) )
-			{
-				_source.AddOrUpdate( id );
-			}
-		}
+		return observable.PopulateInto( _source );
 	}
 }

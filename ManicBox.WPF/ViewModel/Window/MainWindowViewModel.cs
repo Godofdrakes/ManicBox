@@ -6,33 +6,33 @@ using ManicBox.WPF.Model;
 using ManicBox.WPF.Services;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 
 namespace ManicBox.WPF.ViewModel;
 
 public class MainWindowViewModel : WindowViewModel
 {
-	[Reactive] public ReadOnlyObservableCollection<ProcessId> ProcessList { get; private set; }
+	public ReadOnlyObservableCollection<ProcessInstance> ProcessList => _processList;
+
+	private readonly ReadOnlyObservableCollection<ProcessInstance> _processList;
+
+	private readonly SourceCache<ProcessInstance, ProcessId> _cache = new( p => p.Id );
 
 	public MainWindowViewModel( ILogger<MainWindowViewModel> logger, IProcessList processList )
 	{
-		ProcessList = ReadOnlyObservableCollection<ProcessId>.Empty;
+		_cache.Connect()
+			.Bind( out _processList )
+			.Subscribe();
 
 		this.WhenActivated( d =>
 		{
-			processList.AllProcesses()
-				.OnItemAdded( id => logger.LogWarning( "Added {Id}", id ) )
-				.OnItemRemoved( id => logger.LogWarning( "Removed {Id}", id ) )
+			processList.Processes
+				.Connect()
+				.OnItemAdded( id => logger.LogWarning( "Added {Process}", id.Id.Name ) )
+				.OnItemRemoved( id => logger.LogWarning( "Removed {Process}", id.Id.Name ) )
 				.SubscribeOn( RxApp.MainThreadScheduler )
 				.ObserveOn( RxApp.MainThreadScheduler )
-				.Bind( out var list )
-				.Subscribe()
+				.PopulateInto( _cache )
 				.DisposeWith( d );
-
-			Disposable.Create( () => ProcessList = ReadOnlyObservableCollection<ProcessId>.Empty )
-				.DisposeWith( d );
-
-			ProcessList = list;
 		} );
 	}
 }

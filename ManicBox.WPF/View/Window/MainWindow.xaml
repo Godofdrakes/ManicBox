@@ -16,7 +16,7 @@
 		<ListView x:Name="ProcessList"
 			ItemsSource="{Binding ProcessList}">
 			<ListView.ItemTemplate>
-				<DataTemplate DataType="{x:Type model:ProcessId}">
+				<DataTemplate DataType="{x:Type model:ProcessInstance}">
 					<TextBlock Text="{Binding WindowTitle}" />
 				</DataTemplate>
 			</ListView.ItemTemplate>
