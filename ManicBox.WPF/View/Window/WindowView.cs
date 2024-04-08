@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Reactive.Disposables;
+using System.Windows;
 using ManicBox.WPF.ViewModel;
 using ReactiveUI;
 
@@ -28,7 +29,11 @@ public class WindowView<TViewModel> : Window, IViewFor<TViewModel>
 
 	public WindowView()
 	{
-		this.WhenAnyValue( view => view.ViewModel )
-			.BindTo( this, view => view.DataContext );
+		this.WhenActivated( d =>
+		{
+			this.WhenAnyValue( view => view.ViewModel )
+				.BindTo( this, view => view.DataContext )
+				.DisposeWith( d );
+		} );
 	}
 }
