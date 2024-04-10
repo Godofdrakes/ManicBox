@@ -70,11 +70,18 @@ public static class User32
 	{
 		return Observable.Create<nint>( observer =>
 			{
+				var onDispose = new CompositeDisposable();
+
+				WinEventProc callback = ( _, _, window, _, _, _, _ ) => { observer.OnNext( window ); };
+
+				// Must hold a GCHandle to the callback to prevent it being GDd
+				var handle = GCHandle.Alloc( callback );
+
 				var eventHook = SetWinEventHook(
 					EVENT_SYSTEM_FOREGROUND,
 					EVENT_SYSTEM_FOREGROUND,
 					nint.Zero,
-					( _, _, window, _, _, _, _ ) => observer.OnNext( window ),
+					callback,
 					0,
 					0,
 					WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS
@@ -85,8 +92,16 @@ public static class User32
 					HResult.ThrowLastPInvokeError();
 				}
 
-				return Disposable.Create( () => HResult.ThrowIfError( UnhookWinEvent( eventHook ) ) );
+				onDispose.Add( Disposable.Create( () =>
+				{
+					HResult.ThrowIfError( UnhookWinEvent( eventHook ) );
+
+					handle.Free();
+				} ) );
+
+				return onDispose;
 			} )
+			// Events will be invoked on the thread SetWinEventHook is called from
 			.SubscribeOn( scheduler );
 	}
 }
