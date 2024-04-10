@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace ManicBox.Interop.Exceptions;
 
@@ -10,6 +12,12 @@ public static class HResult
 		{
 			Throw( errorCode );
 		}
+	}
+
+	[DoesNotReturn]
+	public static void ThrowLastPInvokeError()
+	{
+		Throw( Marshal.GetLastPInvokeError() );
 	}
 
 	[DoesNotReturn]
