@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using ManicBox.Interop.Exceptions;
 
 namespace ManicBox.Interop;
 
@@ -10,19 +11,17 @@ public sealed class Thumbnail : IDisposable
 
 	public Thumbnail( nint windowDestination, nint windowSource )
 	{
-		if ( Dwm.RegisterThumbnail( windowDestination, windowSource, out _handle ) != 0 )
-		{
-			throw new InvalidOperationException();
-		}
-
-		_properties = new ThumbnailProperties();
+		HResult.ThrowIfError( Dwm.RegisterThumbnail(
+			windowDestination,
+			windowSource,
+			out _handle ) );
 	}
 
 	private void UpdateThumbnailProperties()
 	{
 		try
 		{
-			Dwm.UpdateThumbnailProperties( _handle, ref _properties );
+			HResult.ThrowIfError( Dwm.UpdateThumbnailProperties( _handle, ref _properties ) );
 		}
 		catch (ArgumentException)
 		{
@@ -39,7 +38,7 @@ public sealed class Thumbnail : IDisposable
 		{
 			try
 			{
-				Dwm.QueryThumbnailSourceSize( _handle, out size );
+				HResult.ThrowIfError( Dwm.QueryThumbnailSourceSize( _handle, out size ) );
 			}
 			catch (ArgumentException)
 			{
@@ -124,7 +123,7 @@ public sealed class Thumbnail : IDisposable
 		{
 			try
 			{
-				Dwm.UnregisterThumbnail( _handle );
+				HResult.ThrowIfError( Dwm.UnregisterThumbnail( _handle ) );
 			}
 			catch (ArgumentException)
 			{
