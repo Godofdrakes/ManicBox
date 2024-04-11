@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace ManicBox.Reactive.ViewModel;
+namespace ManicBox.Reactive.ViewModelBase;
 
 public class WindowViewModel : ReactiveObject, IActivatableViewModel
 {

@@ -1,9 +1,9 @@
 ﻿using System.Reactive.Disposables;
 using System.Windows;
-using ManicBox.Reactive.ViewModel;
+using ManicBox.Reactive.ViewModelBase;
 using ReactiveUI;
 
-namespace ManicBox.Reactive.View;
+namespace ManicBox.Reactive.ViewBase;
 
 public class WindowView<TViewModel> : Window, IViewFor<TViewModel>
 	where TViewModel : WindowViewModel

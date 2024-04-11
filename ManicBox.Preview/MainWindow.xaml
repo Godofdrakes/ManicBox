@@ -1,4 +1,4 @@
-﻿<view:WindowView
+﻿<viewBase:WindowView
 	x:Class="ManicBox.Preview.MainWindow"
 	x:TypeArguments="viewModel:WindowViewModel"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,8 +6,8 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:ManicBox.Preview"
-	xmlns:view="clr-namespace:ManicBox.Reactive.View;assembly=ManicBox.Reactive"
-	xmlns:viewModel="clr-namespace:ManicBox.Reactive.ViewModel;assembly=ManicBox.Reactive"
+	xmlns:viewModel="clr-namespace:ManicBox.Reactive.ViewModelBase;assembly=ManicBox.Reactive"
+	xmlns:viewBase="clr-namespace:ManicBox.Reactive.ViewBase;assembly=ManicBox.Reactive"
 	mc:Ignorable="d"
 	Title="MainWindow" Height="450" Width="800">
 	<DockPanel>
@@ -19,4 +19,4 @@
 
 		<Grid x:Name="ClientArea" />
 	</DockPanel>
-</view:WindowView>
+</viewBase:WindowView>

@@ -24,4 +24,8 @@
       </Page>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ManicBox.Reactive\ManicBox.Reactive.csproj" />
+    </ItemGroup>
+
 </Project>

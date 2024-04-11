@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Windows;
-using ManicBox.Reactive.ViewModel;
+using ManicBox.Reactive.ViewModelBase;
 
 namespace ManicBox.Preview;
 
