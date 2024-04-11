@@ -1,5 +1,6 @@
-﻿using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -9,27 +10,59 @@ namespace ManicBox.Interop;
 
 public static class User32
 {
-	[DllImport( "user32.dll", CharSet = CharSet.Auto, SetLastError = true )]
-	public static extern nint GetForegroundWindow();
+	internal delegate void WinEventProc(
+		nint hWinEventHook,
+		uint eventType,
+		nint hwnd,
+		int idObject,
+		int idChild,
+		uint idEventThread,
+		uint dwmsEventTime );
+
+	internal struct WindowReference
+	{
+		public nint hWind { get; }
+		public uint idThread { get; }
+		public uint idProcess { get; }
+
+		public WindowReference( nint hWind )
+		{
+			this.hWind = hWind;
+			this.idThread = GetWindowThreadProcessId( hWind, out var idProcess );
+			this.idProcess = idProcess;
+		}
+	}
+
+	[DllImport( "user32.dll", SetLastError = false )]
+	internal static extern nint GetShellWindow();
+
+	[DllImport( "user32.dll", SetLastError = false )]
+	internal static extern nint GetDesktopWindow();
+
+	[DllImport( "user32.dll", SetLastError = true )]
+	internal static extern nint GetForegroundWindow();
+
+	[DllImport( "user32.dll", SetLastError = true )]
+	internal static extern int GetWindowTextLength( nint hWnd );
 
 	[DllImport( "user32.dll", CharSet = CharSet.Auto, SetLastError = true )]
 	internal static extern int GetWindowText( nint hWnd, StringBuilder text, int count );
 
-	[DllImport( "user32.dll", CharSet = CharSet.Auto, SetLastError = true )]
-	internal static extern int GetWindowTextLength( nint hWnd );
+	[DllImport( "user32.dll", SetLastError = true )]
+	internal static extern uint GetWindowThreadProcessId( nint hWnd, out uint lpdwProcessId );
 
-	public static string GetWindowTitle( nint handle )
+	internal static string GetWindowTitle( nint handle )
 	{
 		var len = GetWindowTextLength( handle );
 
-		if ( len < 1 )
+		if (len < 1)
 		{
 			return string.Empty;
 		}
 
-		var builder = new StringBuilder( len );
+		var builder = new StringBuilder( len + 1 );
 
-		if ( GetWindowText( handle, builder, len ) < 1 )
+		if (GetWindowText( handle, builder, len + 1 ) < 1)
 		{
 			return string.Empty;
 		}
@@ -38,70 +71,77 @@ public static class User32
 	}
 
 	[DllImport( "user32.dll", SetLastError = true )]
-	private static extern nint SetWinEventHook(
-		int eventMin,
-		int eventMax,
+	internal static extern nint SetWinEventHook(
+		WinEvent eventMin,
+		WinEvent eventMax,
 		nint hmodWinEventProc,
 		WinEventProc lpfnWinEventProc,
-		int idProcess,
-		int idThread,
-		int dwflags );
+		uint idProcess,
+		uint idThread,
+		WinEventFlags dwflags );
 
 	[DllImport( "user32.dll", SetLastError = true )]
-	private static extern int UnhookWinEvent( nint hWinEventHook );
+	internal static extern bool UnhookWinEvent( nint hWinEventHook );
 
-	private delegate void WinEventProc(
-		nint hWinEventHook,
-		uint eventType,
-		nint hwnd,
-		int idObject,
-		int idChild,
-		uint dwEventThread,
-		uint dwmsEventTime );
-
-	private const int WINEVENT_INCONTEXT = 4;
-	private const int WINEVENT_OUTOFCONTEXT = 0;
-	private const int WINEVENT_SKIPOWNPROCESS = 2;
-	private const int WINEVENT_SKIPOWNTHREAD = 1;
-
-	private const int EVENT_SYSTEM_FOREGROUND = 3;
-
-	public static IObservable<nint> OnForegroundWindowChanged( IScheduler scheduler )
+	internal enum WinEvent : uint
 	{
-		return Observable.Create<nint>( observer =>
-			{
-				var onDispose = new CompositeDisposable();
+		SystemForeground = 0x0003,
+		ObjectNameChange = 0x800C,
+	}
 
-				WinEventProc callback = ( _, _, window, _, _, _, _ ) => { observer.OnNext( window ); };
+	[Flags]
+	internal enum WinEventFlags : uint
+	{
+		OutOfContext = 0,
+		SkipOwnThread = 1,
+		SkipOwnProcess = 2,
+		InContext = 4,
+	}
 
-				// Must hold a GCHandle to the callback to prevent it being GDd
-				var handle = GCHandle.Alloc( callback );
+	// Observe changes in window focus
+	public static IObservable<nint> GetForegroundWindow( IScheduler scheduler )
+	{
+		var shellThread = GetWindowThreadProcessId( GetShellWindow(), out var shellProcess );
 
-				var eventHook = SetWinEventHook(
-					EVENT_SYSTEM_FOREGROUND,
-					EVENT_SYSTEM_FOREGROUND,
-					nint.Zero,
-					callback,
-					0,
-					0,
-					WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS
-				);
+		if (shellThread == 0)
+		{
+			HResult.ThrowLastPInvokeError();
+		}
 
-				if ( eventHook == nint.Zero )
-				{
-					HResult.ThrowLastPInvokeError();
-				}
+		return Observable.Create<nint>( observer => new WinEventHook( WinEvent.SystemForeground,
+				( _, _, hWnd, _, _, _, _ ) => observer.OnNext( hWnd ) ) )
+			.StartWith( GetForegroundWindow() )
+			.Select( window => new WindowReference( window ) )
+			.Where( window => window.idProcess != shellProcess )
+			.Select( window => window.hWind )
+			// Events are invoked on the subscribing thread.
+			// Unsubscribe must occur on the subscribing thread.
+			// Require scheduler to enforce this.
+			.SubscribeOn( scheduler );
+	}
 
-				onDispose.Add( Disposable.Create( () =>
-				{
-					HResult.ThrowIfError( UnhookWinEvent( eventHook ) );
+	// Observe changes in a window's title
+	public static IObservable<string> GetWindowTitle( nint window, IScheduler scheduler )
+	{
+		var idThread = GetWindowThreadProcessId( window, out var idProcess );
 
-					handle.Free();
-				} ) );
+		if (idThread == 0)
+		{
+			HResult.ThrowLastPInvokeError();
+		}
 
-				return onDispose;
-			} )
-			// Events will be invoked on the thread SetWinEventHook is called from
+		return Observable.Create<nint>( observer => new WinEventHook(
+				WinEvent.ObjectNameChange,
+				idProcess,
+				idThread,
+				( _, _, w, _, _, _, _ ) => observer.OnNext( w ) ) )
+			// We only care about changes to the window itself
+			.Where( w => w == window )
+			.StartWith( window )
+			.Select( GetWindowTitle )
+			// Events are invoked on the subscribing thread.
+			// Unsubscribe must occur on the subscribing thread.
+			// Require scheduler to enforce this.
 			.SubscribeOn( scheduler );
 	}
 }

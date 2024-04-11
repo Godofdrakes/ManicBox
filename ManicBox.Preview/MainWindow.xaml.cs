@@ -1,7 +1,10 @@
-﻿using System.Reactive.Linq;
+﻿using System.Drawing;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Windows.Interop;
 using ManicBox.Interop;
 using ReactiveUI;
+using Point = System.Windows.Point;
 
 namespace ManicBox.Preview;
 
@@ -10,45 +13,61 @@ namespace ManicBox.Preview;
 /// </summary>
 public partial class MainWindow
 {
-	private readonly IDisposable _disposable;
-
 	public MainWindow()
 	{
 		InitializeComponent();
 
-		_disposable = Observable
-			.Interval( TimeSpan.FromSeconds( 5 ) )
-			.Select( _ => User32.GetForegroundWindow() )
-			.DistinctUntilChanged()
-			.ObserveOn( RxApp.MainThreadScheduler )
-			.Select( window =>
-			{
-				var thisWindow = new WindowInteropHelper( this );
+		this.WhenActivated( d =>
+		{
+			var thisWindow = new WindowInteropHelper( this );
 
-				if ( window == thisWindow.Handle )
-				{
-					return null;
-				}
+			var windowFocus = User32
+				.GetForegroundWindow( RxApp.MainThreadScheduler )
+				.Where( window => window != thisWindow.Handle )
+				.Publish();
 
-				if ( window == nint.Zero )
-				{
-					return null;
-				}
+			windowFocus
+				.Select( window => User32.GetWindowTitle( window, RxApp.MainThreadScheduler ) )
+				.Switch()
+				.BindTo( this, view => view.TextBlock.Text )
+				.DisposeWith( d );
 
-				return new Thumbnail( thisWindow.Handle, window )
-					.SetOpacity( 255 )
-					.SetVisible( true )
-					.SetDestinationRect( ClientArea.GetRect() )
-					.SetSourceClientAreaOnly( true );
-			} )
-			.DisposeEach()
-			.Subscribe();
+			windowFocus
+				.Select( window => Observable.Create<Thumbnail>( observer =>
+					{
+						var onDispose = new CompositeDisposable();
+
+						var thumbnail = new Thumbnail( thisWindow.Handle, window )
+							.SetOpacity( 255 )
+							.SetVisible( true )
+							.SetSourceClientAreaOnly( true );
+
+						Observable.FromEventPattern(
+								handler => this.LayoutUpdated += handler,
+								handler => this.LayoutUpdated -= handler )
+							.Select( _ => GetClientArea() )
+							.StartWith( GetClientArea() )
+							.Subscribe( rect => thumbnail.SetDestinationRect( rect ) )
+							.DisposeWith( onDispose );
+
+						return onDispose;
+					} )
+					.DisposeEach() )
+				.Switch()
+				.Subscribe()
+				.DisposeWith( d );
+
+			windowFocus
+				.Connect()
+				.DisposeWith( d );
+		} );
 	}
 
-	protected override void OnClosed( EventArgs e )
+	private Rectangle GetClientArea()
 	{
-		_disposable.Dispose();
-
-		base.OnClosed( e );
+		var pos = this.ClientArea.TransformToAncestor( this )
+			.Transform( new Point( 0, 0 ) );
+		var size = this.ClientArea.RenderSize;
+		return new Rectangle( (int) pos.X, (int) pos.Y, (int) size.Width, (int) size.Height );
 	}
 }

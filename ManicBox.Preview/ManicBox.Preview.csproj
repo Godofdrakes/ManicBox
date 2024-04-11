@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ManicBox.Interop\ManicBox.Interop.csproj" />
+      <ProjectReference Include="..\ManicBox.Reactive\ManicBox.Reactive.csproj" />
     </ItemGroup>
 
     <ItemGroup>
