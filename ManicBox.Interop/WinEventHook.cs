@@ -79,7 +79,7 @@ internal sealed class WinEventHook : IDisposable
 
 		if (eventHook == nint.Zero)
 		{
-			HResult.ThrowLastPInvokeError();
+			MarshalUtil.ThrowLastError();
 		}
 
 		return Disposable.Create( () => User32.UnhookWinEvent( eventHook ) );

@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-using ManicBox.Interop.Exceptions;
+using System.Runtime.InteropServices;
 
 namespace ManicBox.Interop;
 
@@ -11,7 +11,7 @@ public sealed class Thumbnail : IDisposable
 
 	public Thumbnail( nint windowDestination, nint windowSource )
 	{
-		HResult.ThrowIfError( Dwm.RegisterThumbnail(
+		Marshal.ThrowExceptionForHR( Dwm.RegisterThumbnail(
 			windowDestination,
 			windowSource,
 			out _handle ) );
@@ -21,7 +21,7 @@ public sealed class Thumbnail : IDisposable
 	{
 		try
 		{
-			HResult.ThrowIfError( Dwm.UpdateThumbnailProperties( _handle, ref _properties ) );
+			Marshal.ThrowExceptionForHR( Dwm.UpdateThumbnailProperties( _handle, ref _properties ) );
 		}
 		catch (ArgumentException)
 		{
@@ -38,7 +38,7 @@ public sealed class Thumbnail : IDisposable
 		{
 			try
 			{
-				HResult.ThrowIfError( Dwm.QueryThumbnailSourceSize( _handle, out size ) );
+				Marshal.ThrowExceptionForHR( Dwm.QueryThumbnailSourceSize( _handle, out size ) );
 			}
 			catch (ArgumentException)
 			{
@@ -119,21 +119,23 @@ public sealed class Thumbnail : IDisposable
 	{
 		// @todo: thread safety?
 
+		GC.SuppressFinalize( this );
+
 		if ( _handle != nint.Zero )
 		{
 			try
 			{
-				HResult.ThrowIfError( Dwm.UnregisterThumbnail( _handle ) );
+				Marshal.ThrowExceptionForHR( Dwm.UnregisterThumbnail( _handle ) );
 			}
 			catch (ArgumentException)
 			{
-				// The thumbnail handle was already invalid
+				// The thumbnail handle was already invalidated
 			}
-
-			_handle = nint.Zero;
+			finally
+			{
+				_handle = nint.Zero;
+			}
 		}
-
-		GC.SuppressFinalize( this );
 	}
 
 	~Thumbnail() => Dispose();

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using System.Reactive.Concurrency;
+﻿using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -105,7 +103,7 @@ public static class User32
 
 		if (shellThread == 0)
 		{
-			HResult.ThrowLastPInvokeError();
+			MarshalUtil.ThrowLastError();
 		}
 
 		return Observable.Create<nint>( observer => new WinEventHook( WinEvent.SystemForeground,
@@ -127,7 +125,7 @@ public static class User32
 
 		if (idThread == 0)
 		{
-			HResult.ThrowLastPInvokeError();
+			MarshalUtil.ThrowLastError();
 		}
 
 		return Observable.Create<nint>( observer => new WinEventHook(
