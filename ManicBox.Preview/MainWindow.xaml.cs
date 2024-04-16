@@ -40,7 +40,7 @@ public partial class MainWindow
 			// Generate a thumbnail of said window
 			var windowThumbnail = windowFocus
 				.Select( window => new Thumbnail( thisWindow.Handle, window )
-					.SetProperties( ( ref ThumbnailProperties props ) => props
+					.SetProperties( props => props
 						.SetOpacity( 255 )
 						.SetVisible( true )
 						.SetSourceClientAreaOnly( true )
@@ -56,8 +56,8 @@ public partial class MainWindow
 				.WithLatestFrom( windowThumbnail,
 					( rectangle, thumbnail ) => (Rect: rectangle, Thumb: thumbnail) )
 				.Subscribe( tuple => tuple.Thumb?
-					.SetProperties( ( ref ThumbnailProperties props ) =>
-						props.SetDestinationRect( tuple.Rect ) ) )
+					.SetProperties( props => props
+						.SetDestinationRect( tuple.Rect ) ) )
 				.DisposeWith( d );
 
 			windowThumbnail

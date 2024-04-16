@@ -5,8 +5,7 @@ namespace ManicBox.Interop;
 
 public sealed class Thumbnail : IDisposable
 {
-	public delegate void ThumbnailPropertyAction( ref ThumbnailProperties thumbnailProperties );
-
+	public delegate void ThumbnailPropertyAction( ThumbnailPropertyBuilder builder );
 
 	private nint _handle;
 
@@ -42,16 +41,16 @@ public sealed class Thumbnail : IDisposable
 	{
 		ArgumentNullException.ThrowIfNull( action );
 
-		var properties = new ThumbnailProperties();
+		var builder = new ThumbnailPropertyBuilder();
 
-		action( ref properties );
+		action( builder );
 
 		if ( _handle != nint.Zero )
 		{
 			try
 			{
 				Marshal.ThrowExceptionForHR( Dwm
-					.UpdateThumbnailProperties( _handle, ref properties ) );
+					.UpdateThumbnailProperties( _handle, ref builder.Properties ) );
 			}
 			catch (ArgumentException)
 			{
