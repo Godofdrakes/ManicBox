@@ -40,12 +40,10 @@ public partial class MainWindow
 						var onDispose = new CompositeDisposable();
 
 						var thumbnail = new Thumbnail( thisWindow.Handle, window )
-							.SetProperties( ( ref ThumbnailProperties props ) =>
-							{
-								props.SetOpacity( 255 );
-								props.SetVisible( true );
-								props.SetSourceClientAreaOnly( true );
-							} );
+							.SetProperties( ( ref ThumbnailProperties props ) => props
+								.SetOpacity( 255 )
+								.SetVisible( true )
+								.SetSourceClientAreaOnly( true ) );
 
 						Observable.FromEventPattern(
 								handler => this.LayoutUpdated += handler,

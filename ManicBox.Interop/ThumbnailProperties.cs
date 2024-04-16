@@ -6,40 +6,54 @@ namespace ManicBox.Interop;
 [StructLayout( LayoutKind.Sequential )]
 public ref struct ThumbnailProperties
 {
-	private ThumbnailFlags Flags;
-	private Rectangle Destination;
-	private Rectangle Source;
-	private byte Opacity;
-	[MarshalAs( UnmanagedType.Bool )] private bool Visible;
-	[MarshalAs( UnmanagedType.Bool )] private bool SourceClientAreaOnly;
+	internal ThumbnailFlags Flags;
+	internal Rectangle Destination;
+	internal Rectangle Source;
+	internal byte Opacity;
+	[MarshalAs( UnmanagedType.Bool )] internal bool Visible;
+	[MarshalAs( UnmanagedType.Bool )] internal bool SourceClientAreaOnly;
+}
 
-	public void SetDestinationRect( Rectangle rect )
+public static class ThumbnailPropertiesEx
+{
+	public static ref ThumbnailProperties SetDestinationRect( this ref ThumbnailProperties properties, Rectangle rect )
 	{
-		Flags |= ThumbnailFlags.RectDestination;
-		Destination = rect;
+		properties.Flags |= ThumbnailFlags.RectDestination;
+		properties.Destination = rect;
+
+		return ref properties;
 	}
 
-	public void SetSourceRect( Rectangle rect )
+	public static ref ThumbnailProperties SetSourceRect( this ref ThumbnailProperties properties, Rectangle rect )
 	{
-		Flags |= ThumbnailFlags.RectSource;
-		Source = rect;
+		properties.Flags |= ThumbnailFlags.RectSource;
+		properties.Source = rect;
+
+		return ref properties;
 	}
 
-	public void SetOpacity( byte opacity )
+	public static ref ThumbnailProperties SetOpacity( this ref ThumbnailProperties properties, byte opacity )
 	{
-		Flags |= ThumbnailFlags.Opacity;
-		Opacity = opacity;
+		properties.Flags |= ThumbnailFlags.Opacity;
+		properties.Opacity = opacity;
+
+		return ref properties;
 	}
 
-	public void SetVisible( bool visible )
+	public static ref ThumbnailProperties SetVisible( this ref ThumbnailProperties properties, bool visible )
 	{
-		Flags |= ThumbnailFlags.Visible;
-		Visible = visible;
+		properties.Flags |= ThumbnailFlags.Visible;
+		properties.Visible = visible;
+
+		return ref properties;
 	}
 
-	public void SetSourceClientAreaOnly( bool sourceClientAreaOnly )
+	public static ref ThumbnailProperties SetSourceClientAreaOnly( this ref ThumbnailProperties properties,
+		bool sourceClientAreaOnly )
 	{
-		Flags |= ThumbnailFlags.SourceClientAreaOnly;
-		SourceClientAreaOnly = sourceClientAreaOnly;
+		properties.Flags |= ThumbnailFlags.SourceClientAreaOnly;
+		properties.SourceClientAreaOnly = sourceClientAreaOnly;
+
+		return ref properties;
 	}
 }
