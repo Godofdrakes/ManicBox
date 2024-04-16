@@ -5,6 +5,7 @@ using System.Windows.Interop;
 using ManicBox.Interop;
 using ReactiveUI;
 using Point = System.Windows.Point;
+using Size = System.Windows.Size;
 
 namespace ManicBox.Preview;
 
@@ -21,12 +22,14 @@ public partial class MainWindow
 		{
 			var thisWindow = new WindowInteropHelper( this );
 
+			// Observe the currently focused window
 			var windowFocus = User32
 				.ForegroundWindowChanged()
 				.SubscribeOn( RxApp.MainThreadScheduler )
 				.Where( window => window != thisWindow.Handle )
 				.Publish();
 
+			// Observe the title of said window
 			windowFocus
 				.Select( User32.WindowTitleChanged )
 				.SubscribeOn( RxApp.MainThreadScheduler )
@@ -34,32 +37,31 @@ public partial class MainWindow
 				.BindTo( this, view => view.TextBlock.Text )
 				.DisposeWith( d );
 
-			windowFocus
-				.Select( window => Observable.Create<Thumbnail>( observer =>
-					{
-						var onDispose = new CompositeDisposable();
+			// Generate a thumbnail of said window
+			var windowThumbnail = windowFocus
+				.Select( window => new Thumbnail( thisWindow.Handle, window )
+					.SetProperties( ( ref ThumbnailProperties props ) => props
+						.SetOpacity( 255 )
+						.SetVisible( true )
+						.SetSourceClientAreaOnly( true )
+						.SetDestinationRect( GetClientArea() ) ) )
+				.DisposeEach()
+				.Publish();
 
-						var thumbnail = new Thumbnail( thisWindow.Handle, window )
-							.SetProperties( ( ref ThumbnailProperties props ) => props
-								.SetOpacity( 255 )
-								.SetVisible( true )
-								.SetSourceClientAreaOnly( true ) );
+			// Resize said thumbnail
+			Observable.FromEventPattern(
+					handler => this.LayoutUpdated += handler,
+					handler => this.LayoutUpdated -= handler )
+				.Select( _ => GetClientArea() )
+				.WithLatestFrom( windowThumbnail,
+					( rectangle, thumbnail ) => (Rect: rectangle, Thumb: thumbnail) )
+				.Subscribe( tuple => tuple.Thumb?
+					.SetProperties( ( ref ThumbnailProperties props ) =>
+						props.SetDestinationRect( tuple.Rect ) ) )
+				.DisposeWith( d );
 
-						Observable.FromEventPattern(
-								handler => this.LayoutUpdated += handler,
-								handler => this.LayoutUpdated -= handler )
-							.Select( _ => GetClientArea() )
-							.StartWith( GetClientArea() )
-							.Subscribe( rect =>
-								thumbnail.SetProperties( ( ref ThumbnailProperties props ) =>
-									props.SetDestinationRect( rect ) ) )
-							.DisposeWith( onDispose );
-
-						return onDispose;
-					} )
-					.DisposeEach() )
-				.Switch()
-				.Subscribe()
+			windowThumbnail
+				.Connect()
 				.DisposeWith( d );
 
 			windowFocus
@@ -70,9 +72,12 @@ public partial class MainWindow
 
 	private Rectangle GetClientArea()
 	{
-		var pos = this.ClientArea.TransformToAncestor( this )
+		Point pos = this.ClientArea
+			.TransformToAncestor( this )
 			.Transform( new Point( 0, 0 ) );
-		var size = this.ClientArea.RenderSize;
+
+		Size size = this.ClientArea.RenderSize;
+
 		return new Rectangle( (int)pos.X, (int)pos.Y, (int)size.Width, (int)size.Height );
 	}
 }
