@@ -46,18 +46,18 @@ public sealed class Thumbnail : IDisposable
 
 		action( ref properties );
 
-		try
+		if ( _handle != nint.Zero )
 		{
-			if ( _handle != nint.Zero )
+			try
 			{
 				Marshal.ThrowExceptionForHR( Dwm
 					.UpdateThumbnailProperties( _handle, ref properties ) );
 			}
-		}
-		catch (ArgumentException)
-		{
-			// The thumbnail handle was already invalid
-			_handle = nint.Zero;
+			catch (ArgumentException)
+			{
+				// The thumbnail handle was already invalid
+				_handle = nint.Zero;
+			}
 		}
 
 		return this;

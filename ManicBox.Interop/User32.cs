@@ -1,5 +1,4 @@
-﻿using System.Reactive.Concurrency;
-using System.Reactive.Linq;
+﻿using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using ManicBox.Interop.Exceptions;
@@ -55,6 +54,8 @@ public static class User32
 
 		if ( len < 1 )
 		{
+			MarshalUtil.ThrowLastError();
+
 			return string.Empty;
 		}
 
@@ -62,6 +63,8 @@ public static class User32
 
 		if ( GetWindowText( handle, builder, len + 1 ) < 1 )
 		{
+			MarshalUtil.ThrowLastError();
+
 			return string.Empty;
 		}
 
