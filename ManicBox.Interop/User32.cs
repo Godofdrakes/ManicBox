@@ -19,15 +19,15 @@ public static class User32
 
 	internal struct WindowReference
 	{
-		public nint hWind { get; }
-		public uint idThread { get; }
-		public uint idProcess { get; }
+		public nint HWind { get; }
+		public uint IdThread { get; }
+		public uint IdProcess { get; }
 
 		public WindowReference( nint hWind )
 		{
-			this.hWind = hWind;
-			this.idThread = GetWindowThreadProcessId( hWind, out var idProcess );
-			this.idProcess = idProcess;
+			this.HWind = hWind;
+			this.IdThread = GetWindowThreadProcessId( hWind, out var idProcess );
+			this.IdProcess = idProcess;
 		}
 	}
 
@@ -53,14 +53,14 @@ public static class User32
 	{
 		var len = GetWindowTextLength( handle );
 
-		if (len < 1)
+		if ( len < 1 )
 		{
 			return string.Empty;
 		}
 
 		var builder = new StringBuilder( len + 1 );
 
-		if (GetWindowText( handle, builder, len + 1 ) < 1)
+		if ( GetWindowText( handle, builder, len + 1 ) < 1 )
 		{
 			return string.Empty;
 		}
@@ -97,49 +97,43 @@ public static class User32
 	}
 
 	// Observe changes in window focus
-	public static IObservable<nint> GetForegroundWindow( IScheduler scheduler )
+	public static IObservable<nint> ForegroundWindowChanged()
 	{
 		var shellThread = GetWindowThreadProcessId( GetShellWindow(), out var shellProcess );
 
-		if (shellThread == 0)
+		if ( shellThread == 0 )
 		{
 			MarshalUtil.ThrowLastError();
 		}
 
-		return Observable.Create<nint>( observer => new WinEventHook( WinEvent.SystemForeground,
-				( _, _, hWnd, _, _, _, _ ) => observer.OnNext( hWnd ) ) )
+		return Observable.Create<nint>( observer => EventHookBuilder
+				.OnEvent( WinEvent.SystemForeground )
+				.WithCallback( ( _, _, hWnd, _, _, _, _ ) => observer.OnNext( hWnd ) )
+				.Subscribe() )
 			.StartWith( GetForegroundWindow() )
 			.Select( window => new WindowReference( window ) )
-			.Where( window => window.idProcess != shellProcess )
-			.Select( window => window.hWind )
-			// Events are invoked on the subscribing thread.
-			// Unsubscribe must occur on the subscribing thread.
-			// Require scheduler to enforce this.
-			.SubscribeOn( scheduler );
+			.Where( window => window.IdProcess != shellProcess )
+			.Select( window => window.HWind );
 	}
 
 	// Observe changes in a window's title
-	public static IObservable<string> GetWindowTitle( nint window, IScheduler scheduler )
+	public static IObservable<string> WindowTitleChanged( nint window )
 	{
 		var idThread = GetWindowThreadProcessId( window, out var idProcess );
 
-		if (idThread == 0)
+		if ( idThread == 0 )
 		{
 			MarshalUtil.ThrowLastError();
 		}
 
-		return Observable.Create<nint>( observer => new WinEventHook(
-				WinEvent.ObjectNameChange,
-				idProcess,
-				idThread,
-				( _, _, w, _, _, _, _ ) => observer.OnNext( w ) ) )
+		return Observable.Create<nint>( observer => EventHookBuilder
+				.OnEvent( WinEvent.ObjectNameChange )
+				.ForProcess( idProcess, idThread )
+				.WithCallback( ( _, _, w, _, _, _, _ ) => observer.OnNext( w ) )
+				.Subscribe() )
 			// We only care about changes to the window itself
 			.Where( w => w == window )
 			.StartWith( window )
-			.Select( GetWindowTitle )
-			// Events are invoked on the subscribing thread.
-			// Unsubscribe must occur on the subscribing thread.
-			// Require scheduler to enforce this.
-			.SubscribeOn( scheduler );
+			.Select( GetWindowTitle );
 	}
 }

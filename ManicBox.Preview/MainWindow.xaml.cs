@@ -22,12 +22,14 @@ public partial class MainWindow
 			var thisWindow = new WindowInteropHelper( this );
 
 			var windowFocus = User32
-				.GetForegroundWindow( RxApp.MainThreadScheduler )
+				.ForegroundWindowChanged()
+				.SubscribeOn( RxApp.MainThreadScheduler )
 				.Where( window => window != thisWindow.Handle )
 				.Publish();
 
 			windowFocus
-				.Select( window => User32.GetWindowTitle( window, RxApp.MainThreadScheduler ) )
+				.Select( User32.WindowTitleChanged )
+				.SubscribeOn( RxApp.MainThreadScheduler )
 				.Switch()
 				.BindTo( this, view => view.TextBlock.Text )
 				.DisposeWith( d );
@@ -38,16 +40,21 @@ public partial class MainWindow
 						var onDispose = new CompositeDisposable();
 
 						var thumbnail = new Thumbnail( thisWindow.Handle, window )
-							.SetOpacity( 255 )
-							.SetVisible( true )
-							.SetSourceClientAreaOnly( true );
+							.SetProperties( ( ref ThumbnailProperties props ) =>
+							{
+								props.SetOpacity( 255 );
+								props.SetVisible( true );
+								props.SetSourceClientAreaOnly( true );
+							} );
 
 						Observable.FromEventPattern(
 								handler => this.LayoutUpdated += handler,
 								handler => this.LayoutUpdated -= handler )
 							.Select( _ => GetClientArea() )
 							.StartWith( GetClientArea() )
-							.Subscribe( rect => thumbnail.SetDestinationRect( rect ) )
+							.Subscribe( rect =>
+								thumbnail.SetProperties( ( ref ThumbnailProperties props ) =>
+									props.SetDestinationRect( rect ) ) )
 							.DisposeWith( onDispose );
 
 						return onDispose;
@@ -68,6 +75,6 @@ public partial class MainWindow
 		var pos = this.ClientArea.TransformToAncestor( this )
 			.Transform( new Point( 0, 0 ) );
 		var size = this.ClientArea.RenderSize;
-		return new Rectangle( (int) pos.X, (int) pos.Y, (int) size.Width, (int) size.Height );
+		return new Rectangle( (int)pos.X, (int)pos.Y, (int)size.Width, (int)size.Height );
 	}
 }

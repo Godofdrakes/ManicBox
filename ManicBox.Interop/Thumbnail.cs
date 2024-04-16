@@ -5,7 +5,8 @@ namespace ManicBox.Interop;
 
 public sealed class Thumbnail : IDisposable
 {
-	private ThumbnailProperties _properties;
+	public delegate void ThumbnailPropertyAction( ref ThumbnailProperties thumbnailProperties );
+
 
 	private nint _handle;
 
@@ -15,19 +16,6 @@ public sealed class Thumbnail : IDisposable
 			windowDestination,
 			windowSource,
 			out _handle ) );
-	}
-
-	private void UpdateThumbnailProperties()
-	{
-		try
-		{
-			Marshal.ThrowExceptionForHR( Dwm.UpdateThumbnailProperties( _handle, ref _properties ) );
-		}
-		catch (ArgumentException)
-		{
-			// The thumbnail handle was already invalid
-			_handle = nint.Zero;
-		}
 	}
 
 	public Size GetSourceSize()
@@ -50,66 +38,26 @@ public sealed class Thumbnail : IDisposable
 		return size;
 	}
 
-	public Thumbnail SetDestinationRect( Rectangle rect )
+	public Thumbnail SetProperties( ThumbnailPropertyAction action )
 	{
-		if ( _handle != nint.Zero )
-		{
-			_properties.Flags = ThumbnailFlags.RectDestination;
-			_properties.Destination = rect;
+		ArgumentNullException.ThrowIfNull( action );
 
-			UpdateThumbnailProperties();
+		var properties = new ThumbnailProperties();
+
+		action( ref properties );
+
+		try
+		{
+			if ( _handle != nint.Zero )
+			{
+				Marshal.ThrowExceptionForHR( Dwm
+					.UpdateThumbnailProperties( _handle, ref properties ) );
+			}
 		}
-
-		return this;
-	}
-
-	public Thumbnail SetSourceRect( Rectangle rect )
-	{
-		if ( _handle != nint.Zero )
+		catch (ArgumentException)
 		{
-			_properties.Flags = ThumbnailFlags.RectSource;
-			_properties.Source = rect;
-
-			UpdateThumbnailProperties();
-		}
-
-		return this;
-	}
-
-	public Thumbnail SetOpacity( byte opacity )
-	{
-		if ( _handle != nint.Zero )
-		{
-			_properties.Flags = ThumbnailFlags.Opacity;
-			_properties.Opacity = opacity;
-
-			UpdateThumbnailProperties();
-		}
-
-		return this;
-	}
-
-	public Thumbnail SetVisible( bool visible )
-	{
-		if ( _handle != nint.Zero )
-		{
-			_properties.Flags = ThumbnailFlags.Visible;
-			_properties.Visible = visible;
-
-			UpdateThumbnailProperties();
-		}
-
-		return this;
-	}
-
-	public Thumbnail SetSourceClientAreaOnly( bool sourceClientAreaOnly )
-	{
-		if ( _handle != nint.Zero )
-		{
-			_properties.Flags = ThumbnailFlags.SourceClientAreaOnly;
-			_properties.SourceClientAreaOnly = sourceClientAreaOnly;
-
-			UpdateThumbnailProperties();
+			// The thumbnail handle was already invalid
+			_handle = nint.Zero;
 		}
 
 		return this;
