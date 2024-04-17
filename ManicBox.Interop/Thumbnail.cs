@@ -27,7 +27,7 @@ public sealed class Thumbnail : IDisposable
 			{
 				Marshal.ThrowExceptionForHR( Dwm.QueryThumbnailSourceSize( _handle, out size ) );
 			}
-			catch (ArgumentException)
+			catch ( ArgumentException )
 			{
 				// The thumbnail handle was already invalid
 				_handle = nint.Zero;
@@ -52,7 +52,7 @@ public sealed class Thumbnail : IDisposable
 				Marshal.ThrowExceptionForHR( Dwm
 					.UpdateThumbnailProperties( _handle, ref builder.Properties ) );
 			}
-			catch (ArgumentException)
+			catch ( ArgumentException )
 			{
 				// The thumbnail handle was already invalid
 				_handle = nint.Zero;
@@ -74,7 +74,7 @@ public sealed class Thumbnail : IDisposable
 			{
 				Marshal.ThrowExceptionForHR( Dwm.UnregisterThumbnail( _handle ) );
 			}
-			catch (ArgumentException)
+			catch ( ArgumentException )
 			{
 				// The thumbnail handle was already invalidated
 			}
