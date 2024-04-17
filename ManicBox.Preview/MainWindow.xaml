@@ -8,6 +8,7 @@
 	xmlns:local="clr-namespace:ManicBox.Preview"
 	xmlns:viewModel="clr-namespace:ManicBox.Reactive.ViewModelBase;assembly=ManicBox.Reactive"
 	xmlns:viewBase="clr-namespace:ManicBox.Reactive.ViewBase;assembly=ManicBox.Reactive"
+	xmlns:view="clr-namespace:ManicBox.Preview.View"
 	mc:Ignorable="d"
 	Title="MainWindow" Height="450" Width="800">
 	<DockPanel>
@@ -17,6 +18,6 @@
 			Text="Foreground Window"
 			TextAlignment="Center" />
 
-		<Grid x:Name="ClientArea" />
+		<view:ThumbnailView x:Name="ThumbnailView" />
 	</DockPanel>
 </viewBase:WindowView>
