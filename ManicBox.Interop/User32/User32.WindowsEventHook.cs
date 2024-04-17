@@ -24,7 +24,7 @@ public static partial class User32
 
 	internal delegate void WinEventProc(
 		nint hWinEventHook,
-		uint eventType,
+		WinEvent eventType,
 		HWND hwnd,
 		int idObject,
 		int idChild,
@@ -34,7 +34,7 @@ public static partial class User32
 	[SuppressMessage( "ReSharper", "InconsistentNaming" )]
 	internal struct SetWinEventParams
 	{
-		public WinEventProc eventProc;
+		public WinEventProc pfnWinEventProc;
 		public WinEvent eventMin;
 		public WinEvent eventMax;
 		public uint idProcess;
@@ -46,7 +46,7 @@ public static partial class User32
 	internal sealed class WinEventParams
 	{
 		public nint hWinEventHook { get; init; }
-		public uint eventType { get; init; }
+		public WinEvent eventType { get; init; }
 		public HWND hWnd { get; init; }
 		public int idObject { get; init; }
 		public int idChild { get; init; }
@@ -64,7 +64,7 @@ public static partial class User32
 				eventParams.eventMin,
 				eventParams.eventMax,
 				nint.Zero,
-				eventParams.eventProc,
+				eventParams.pfnWinEventProc,
 				eventParams.idProcess,
 				eventParams.idThread,
 				WinEventFlags.OutOfContext | WinEventFlags.SkipOwnProcess
@@ -113,7 +113,7 @@ public static partial class User32
 		return Observable.Create<WinEventParams>( observer =>
 		{
 			SetWinEventParams eventParams;
-			eventParams.eventProc = WinEventProc;
+			eventParams.pfnWinEventProc = WinEventProc;
 			eventParams.eventMin = winEventMin;
 			eventParams.eventMax = winEventMax;
 			eventParams.idProcess = idProcess;
@@ -123,7 +123,7 @@ public static partial class User32
 
 			void WinEventProc(
 				nint hWinEventHook,
-				uint eventType,
+				WinEvent eventType,
 				HWND hWnd,
 				int idObject,
 				int idChild,
