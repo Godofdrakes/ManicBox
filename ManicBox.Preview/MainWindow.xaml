@@ -18,6 +18,10 @@
 			Text="Foreground Window"
 			TextAlignment="Center" />
 
+		<view:WindowListView x:Name="WindowListView"
+			DockPanel.Dock="Left"
+			Width="200" />
+
 		<view:ThumbnailView x:Name="ThumbnailView" />
 	</DockPanel>
 </viewBase:WindowView>

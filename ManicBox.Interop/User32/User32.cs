@@ -6,7 +6,7 @@ namespace ManicBox.Interop;
 public static partial class User32
 {
 	// Observe changes in window focus
-	public static IObservable<HWND> ForegroundWindowChanged()
+	public static IObservable<HWND> OnForegroundWindowChanged()
 	{
 		return EventHook( WinEvent.SystemForeground )
 			.Select( ev => ev.hWnd )
@@ -15,7 +15,7 @@ public static partial class User32
 	}
 
 	// Observe changes in a window's title
-	public static IObservable<string> WindowTitleChanged( HWND hWnd )
+	public static IObservable<string> OnWindowTitleChanged( HWND hWnd )
 	{
 		var idThread = GetWindowThreadProcessId( hWnd, out var idProcess );
 
@@ -30,6 +30,37 @@ public static partial class User32
 			.Select( e => e.hWnd )
 			.StartWith( hWnd )
 			.Select( GetWindowTitle );
+	}
+
+	private const int WS_VISIBLE = 0x10000000;
+	private const int GWL_STYLE = -16;
+
+	public static IObservable<HWND> OnWindowCreated()
+	{
+		var nowWindows = Observable.Create<HWND>( observer =>
+			EnumerateWindows( hwnd =>
+				{
+					var style = GetWindowLong( hwnd, GWL_STYLE );
+					var title = GetWindowTextLength( hwnd );
+					return (style & WS_VISIBLE) != 0 && title > 0;
+				} )
+				.ToObservable()
+				.Subscribe( observer ) );
+
+		var newWindows = EventHook( WinEvent.ObjectCreate )
+			.Where( e => e.idObject == OBJID_WINDOW )
+			.Where( e => e.idObject == CHILDID_SELF )
+			.Select( e => e.hWnd );
+
+		return nowWindows.Concat( newWindows );
+	}
+
+	public static IObservable<HWND> OnWindowDestroyed()
+	{
+		return EventHook( WinEvent.ObjectDestroy )
+			.Where( e => e.idObject == OBJID_WINDOW )
+			.Where( e => e.idObject == CHILDID_SELF )
+			.Select( e => e.hWnd );
 	}
 
 	private static Func<HWND, bool> IsShellWindow( bool expected )

@@ -14,11 +14,14 @@ public partial class MainWindow
 {
 	private ThumbnailViewModel Thumbnail { get; } = new();
 
+	private WindowListViewModel WindowList { get; } = new();
+
 	public MainWindow()
 	{
 		InitializeComponent();
 
 		ThumbnailView.ViewModel = Thumbnail;
+		WindowListView.ViewModel = WindowList;
 
 		this.WhenActivated( d =>
 		{
@@ -28,14 +31,14 @@ public partial class MainWindow
 
 			// Observe the currently focused window
 			var windowFocus = User32
-				.ForegroundWindowChanged()
+				.OnForegroundWindowChanged()
 				.Where( window => window != thisWindow )
 				.SubscribeOn( RxApp.MainThreadScheduler )
 				.Publish();
 
 			// Observe the title of said window
 			windowFocus
-				.Select( User32.WindowTitleChanged )
+				.Select( User32.OnWindowTitleChanged )
 				.Switch()
 				.SubscribeOn( RxApp.MainThreadScheduler )
 				.BindTo( this, view => view.TextBlock.Text )
