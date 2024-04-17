@@ -8,14 +8,14 @@ namespace ManicBox.Interop;
 public static class DwmApi
 {
 	[DllImport( nameof(DwmApi), PreserveSig = false, EntryPoint = "DwmQueryThumbnailSourceSize" )]
-	internal static extern Size QueryThumbnailSourceSize( nint thumbnailHandle );
+	internal static extern Size QueryThumbnailSourceSize( HANDLE thumbnailHandle );
 
 	[DllImport( nameof(DwmApi), PreserveSig = false, EntryPoint = "DwmRegisterThumbnail" )]
-	internal static extern nint RegisterThumbnail( nint windowDestination, nint windowSource );
+	internal static extern void RegisterThumbnail( HWND windowDestination, HWND windowSource, out HANDLE thumbnailHandle );
 
 	[DllImport( nameof(DwmApi), PreserveSig = false, EntryPoint = "DwmUnregisterThumbnail" )]
-	internal static extern void UnregisterThumbnail( nint thumbnailHandle );
+	internal static extern void UnregisterThumbnail( HANDLE thumbnailHandle );
 
 	[DllImport( nameof(DwmApi), PreserveSig = false, EntryPoint = "DwmUpdateThumbnailProperties" )]
-	internal static extern void UpdateThumbnailProperties( nint thumbnailHandle, ref ThumbnailProperties thumbnailProperties );
+	internal static extern void UpdateThumbnailProperties( HANDLE thumbnailHandle, ref ThumbnailProperties thumbnailProperties );
 }

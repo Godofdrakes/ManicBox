@@ -39,7 +39,7 @@ public partial class MainWindow
 
 			// Generate a thumbnail of said window
 			var windowThumbnail = windowFocus
-				.Select( window => new Thumbnail( thisWindow.Handle, window )
+				.Select( window => new Thumbnail( new HWND( thisWindow.Handle ), window )
 					.SetProperties( props => props
 						.SetOpacity( 255 )
 						.SetVisible( true )

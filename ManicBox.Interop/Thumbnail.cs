@@ -6,16 +6,16 @@ public sealed class Thumbnail : IDisposable
 {
 	public delegate void ThumbnailPropertyAction( ThumbnailPropertyBuilder builder );
 
-	private nint _handle;
+	private HANDLE _handle;
 
-	public Thumbnail( nint windowDestination, nint windowSource )
+	public Thumbnail( HWND windowDestination, HWND windowSource )
 	{
-		_handle = DwmApi.RegisterThumbnail( windowDestination, windowSource );
+		DwmApi.RegisterThumbnail( windowDestination, windowSource, out _handle );
 	}
 
 	public Size GetSourceSize()
 	{
-		if ( _handle != nint.Zero )
+		if ( _handle.IsValid )
 		{
 			try
 			{
@@ -24,7 +24,7 @@ public sealed class Thumbnail : IDisposable
 			catch ( ArgumentException )
 			{
 				// The thumbnail handle was already invalid
-				_handle = nint.Zero;
+				_handle = HANDLE.Null;
 			}
 		}
 
@@ -39,7 +39,7 @@ public sealed class Thumbnail : IDisposable
 
 		action( builder );
 
-		if ( _handle != nint.Zero )
+		if ( _handle.IsValid )
 		{
 			try
 			{
@@ -48,7 +48,7 @@ public sealed class Thumbnail : IDisposable
 			catch ( ArgumentException )
 			{
 				// The thumbnail handle was already invalid
-				_handle = nint.Zero;
+				_handle = HANDLE.Null;
 			}
 		}
 
@@ -61,7 +61,7 @@ public sealed class Thumbnail : IDisposable
 
 		GC.SuppressFinalize( this );
 
-		if ( _handle != nint.Zero )
+		if ( _handle.IsValid )
 		{
 			try
 			{
@@ -73,7 +73,7 @@ public sealed class Thumbnail : IDisposable
 			}
 			finally
 			{
-				_handle = nint.Zero;
+				_handle = HANDLE.Null;
 			}
 		}
 	}
