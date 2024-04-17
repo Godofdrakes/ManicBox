@@ -6,7 +6,7 @@ namespace ManicBox.Interop;
 public static partial class User32
 {
 	// Observe changes in window focus
-	public static IObservable<nint> ForegroundWindowChanged()
+	public static IObservable<HWND> ForegroundWindowChanged()
 	{
 		return EventHook( WinEvent.SystemForeground )
 			.Select( ev => ev.hWnd )
@@ -15,9 +15,9 @@ public static partial class User32
 	}
 
 	// Observe changes in a window's title
-	public static IObservable<string> WindowTitleChanged( nint window )
+	public static IObservable<string> WindowTitleChanged( HWND hWnd )
 	{
-		var idThread = GetWindowThreadProcessId( window, out var idProcess );
+		var idThread = GetWindowThreadProcessId( hWnd, out var idProcess );
 
 		if ( idThread == 0 )
 		{
@@ -28,11 +28,11 @@ public static partial class User32
 			.Where( e => e.idObject == OBJID_WINDOW )
 			.Where( e => e.idChild == CHILDID_SELF )
 			.Select( e => e.hWnd )
-			.StartWith( window )
+			.StartWith( hWnd )
 			.Select( GetWindowTitle );
 	}
 
-	private static Func<nint, bool> IsShellWindow( bool expected )
+	private static Func<HWND, bool> IsShellWindow( bool expected )
 	{
 		var shellThread = GetWindowThreadProcessId( GetShellWindow(), out var shellProcess );
 

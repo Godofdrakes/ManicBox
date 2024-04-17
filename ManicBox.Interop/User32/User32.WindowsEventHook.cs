@@ -25,7 +25,7 @@ public static partial class User32
 	internal delegate void WinEventProc(
 		nint hWinEventHook,
 		uint eventType,
-		nint hwnd,
+		HWND hwnd,
 		int idObject,
 		int idChild,
 		uint idEventThread,
@@ -47,7 +47,7 @@ public static partial class User32
 	{
 		public nint hWinEventHook { get; init; }
 		public uint eventType { get; init; }
-		public nint hWnd { get; init; }
+		public HWND hWnd { get; init; }
 		public int idObject { get; init; }
 		public int idChild { get; init; }
 		public uint idEventThread { get; init; }
@@ -124,7 +124,7 @@ public static partial class User32
 			void WinEventProc(
 				nint hWinEventHook,
 				uint eventType,
-				nint hWnd,
+				HWND hWnd,
 				int idObject,
 				int idChild,
 				uint idEventThread,
