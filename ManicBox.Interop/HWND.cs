@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace ManicBox.Interop;
 
 [DebuggerDisplay( "{Value}" )]
 [StructLayout( LayoutKind.Sequential )]
+[SuppressMessage( "ReSharper", "InconsistentNaming" )]
 public readonly struct HWND : IEquatable<HWND>
 {
 	private readonly IntPtr Value;
