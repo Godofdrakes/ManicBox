@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace ManicBox.Interop;
 
-public static class DwmApi
+public static partial class DwmApi
 {
 	[DllImport( nameof(DwmApi), PreserveSig = false, EntryPoint = "DwmQueryThumbnailSourceSize" )]
 	internal static extern Size QueryThumbnailSourceSize( HANDLE thumbnailHandle );

@@ -3,6 +3,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Interop;
 using ManicBox.Interop;
+using ManicBox.Preview.Extensions;
 using ReactiveUI;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
@@ -20,13 +21,13 @@ public partial class MainWindow
 
 		this.WhenActivated( d =>
 		{
-			var thisWindow = new WindowInteropHelper( this );
+			var thisWindow = this.GetHWND();
 
 			// Observe the currently focused window
 			var windowFocus = User32
 				.ForegroundWindowChanged()
 				.SubscribeOn( RxApp.MainThreadScheduler )
-				.Where( window => window != thisWindow.Handle )
+				.Where( window => window != thisWindow )
 				.Publish();
 
 			// Observe the title of said window
@@ -39,7 +40,7 @@ public partial class MainWindow
 
 			// Generate a thumbnail of said window
 			var windowThumbnail = windowFocus
-				.Select( window => new Thumbnail( new HWND( thisWindow.Handle ), window )
+				.Select( window => new DwmApi.Thumbnail( thisWindow, window )
 					.SetProperties( props => props
 						.SetOpacity( 255 )
 						.SetVisible( true )
