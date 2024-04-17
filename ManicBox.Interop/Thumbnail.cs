@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Runtime.InteropServices;
 
 namespace ManicBox.Interop;
 
@@ -11,21 +10,16 @@ public sealed class Thumbnail : IDisposable
 
 	public Thumbnail( nint windowDestination, nint windowSource )
 	{
-		Marshal.ThrowExceptionForHR( Dwm.RegisterThumbnail(
-			windowDestination,
-			windowSource,
-			out _handle ) );
+		_handle = DwmApi.RegisterThumbnail( windowDestination, windowSource );
 	}
 
 	public Size GetSourceSize()
 	{
-		var size = new Size();
-
 		if ( _handle != nint.Zero )
 		{
 			try
 			{
-				Marshal.ThrowExceptionForHR( Dwm.QueryThumbnailSourceSize( _handle, out size ) );
+				return DwmApi.QueryThumbnailSourceSize( _handle );
 			}
 			catch ( ArgumentException )
 			{
@@ -34,7 +28,7 @@ public sealed class Thumbnail : IDisposable
 			}
 		}
 
-		return size;
+		return Size.Empty;
 	}
 
 	public Thumbnail SetProperties( ThumbnailPropertyAction action )
@@ -49,8 +43,7 @@ public sealed class Thumbnail : IDisposable
 		{
 			try
 			{
-				Marshal.ThrowExceptionForHR( Dwm
-					.UpdateThumbnailProperties( _handle, ref builder.Properties ) );
+				DwmApi.UpdateThumbnailProperties( _handle, ref builder.Properties );
 			}
 			catch ( ArgumentException )
 			{
@@ -72,7 +65,7 @@ public sealed class Thumbnail : IDisposable
 		{
 			try
 			{
-				Marshal.ThrowExceptionForHR( Dwm.UnregisterThumbnail( _handle ) );
+				DwmApi.UnregisterThumbnail( _handle );
 			}
 			catch ( ArgumentException )
 			{
