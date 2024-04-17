@@ -5,7 +5,7 @@ namespace ManicBox.Interop;
 
 [DebuggerDisplay( "{Value}" )]
 [StructLayout( LayoutKind.Sequential )]
-public struct HWND : IEquatable<HWND>
+public readonly struct HWND : IEquatable<HWND>
 {
 	private readonly IntPtr Value;
 
@@ -18,6 +18,16 @@ public struct HWND : IEquatable<HWND>
 	public static HWND Null => default;
 
 	public HWND( IntPtr value ) => Value = value;
+
+	public static bool operator ==(HWND left, HWND right)
+	{
+		return left.Value == right.Value;
+	}
+
+	public static bool operator !=(HWND left, HWND right)
+	{
+		return !(left == right);
+	}
 
 	public bool Equals( HWND other )
 	{
