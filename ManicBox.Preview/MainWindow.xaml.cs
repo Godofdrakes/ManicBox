@@ -36,14 +36,6 @@ public partial class MainWindow
 				.SubscribeOn( RxApp.MainThreadScheduler )
 				.Publish();
 
-			// Observe the title of said window
-			windowFocus
-				.Select( User32.OnWindowTitleChanged )
-				.Switch()
-				.SubscribeOn( RxApp.MainThreadScheduler )
-				.BindTo( this, view => view.TextBlock.Text )
-				.DisposeWith( d );
-
 			windowFocus
 				.BindTo( this, view => view.Thumbnail.SourceWindow )
 				.DisposeWith( d );

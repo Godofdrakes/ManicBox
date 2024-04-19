@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using ManicBox.Interop.Common;
 
 namespace ManicBox.Interop;
@@ -129,7 +128,7 @@ public static partial class DwmApi
 			{
 				try
 				{
-					DwmApi.UnregisterThumbnail( _handle );
+					UnregisterThumbnail( _handle );
 				}
 				catch ( ArgumentException )
 				{

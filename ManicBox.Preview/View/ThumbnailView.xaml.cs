@@ -25,8 +25,8 @@ public partial class ThumbnailView
 				.Select( size => new Size( size.Width, size.Height ) )
 				.Subscribe( size =>
 				{
-					this.ClientArea.Width = size.Width;
-					this.ClientArea.Height = size.Height;
+					ClientArea.Width = size.Width;
+					ClientArea.Height = size.Height;
 				} )
 				.DisposeWith( d );
 
@@ -34,21 +34,62 @@ public partial class ThumbnailView
 				.Select( _ => GetClientArea() )
 				.BindTo( ViewModel, viewModel => viewModel.DestinationRect )
 				.DisposeWith( d );
+
+			this.OnLayoutUpdated()
+				.Select( _ => IsUserVisible() )
+				.BindTo( ViewModel, viewModel => viewModel.Visible )
+				.DisposeWith( d );
 		} );
+	}
+
+	private bool IsUserVisible()
+	{
+		if ( !IsVisible )
+		{
+			return false;
+		}
+
+		var window = Window.GetWindow( this );
+
+		if ( window is null )
+		{
+			return false;
+		}
+
+		var windowBounds = new Rect( 0, 0, window.ActualWidth, window.ActualHeight );
+		var clientBounds = new Rect( 0, 0, ClientArea.ActualWidth, ClientArea.ActualHeight );
+
+		var finalBounds = ClientArea
+			.TransformToAncestor( window )
+			.TransformBounds( clientBounds );
+
+		return windowBounds.IntersectsWith( finalBounds );
 	}
 
 	private Margins GetClientArea()
 	{
+		if ( !IsVisible )
+		{
+			return default;
+		}
+
 		var window = Window.GetWindow( this );
 
-		var topLeft = this.ClientArea
-			.TransformToAncestor( window! )
-			.Transform( new Point( 0, 0 ) );
+		if ( window is null )
+		{
+			return default;
+		}
 
-		var bottomRight = this.ClientArea
-			.TransformToAncestor( window! )
-			.Transform( new Point( this.ClientArea.ActualWidth, this.ClientArea.ActualHeight ) );
+		var clientBounds = new Rect( 0, 0, ClientArea.ActualWidth, ClientArea.ActualHeight );
 
-		return new Margins( (int)topLeft.X, (int)topLeft.Y, (int)bottomRight.X, (int)bottomRight.Y );
+		var finalBounds = ClientArea
+			.TransformToAncestor( window )
+			.TransformBounds( clientBounds );
+
+		return new Margins(
+			(int)finalBounds.Left,
+			(int)finalBounds.Top,
+			(int)finalBounds.Right,
+			(int)finalBounds.Bottom );
 	}
 }

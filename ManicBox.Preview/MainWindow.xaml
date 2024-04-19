@@ -11,17 +11,16 @@
 	xmlns:view="clr-namespace:ManicBox.Preview.View"
 	mc:Ignorable="d"
 	Title="MainWindow" Height="450" Width="800">
-	<DockPanel>
-		<TextBlock x:Name="TextBlock"
-			DockPanel.Dock="Top"
-			FontSize="16"
-			Text="Foreground Window"
-			TextAlignment="Center" />
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="1*" />
+			<ColumnDefinition Width="2*" />
+		</Grid.ColumnDefinitions>
 
 		<view:WindowListView x:Name="WindowListView"
-			DockPanel.Dock="Left"
-			Width="200" />
+			Grid.Column="0" />
 
-		<view:ThumbnailView x:Name="ThumbnailView" />
-	</DockPanel>
+		<view:ThumbnailView x:Name="ThumbnailView"
+			Grid.Column="1" />
+	</Grid>
 </viewBase:WindowView>
