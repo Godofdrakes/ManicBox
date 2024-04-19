@@ -30,49 +30,42 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 
 	public ThumbnailViewModel()
 	{
-		this.WhenAnyValue( viewModel => viewModel.Thumbnail, viewModel => viewModel.Opacity )
-			.Where( tuple => tuple.Item1 is not null )
+		// Update thumbnail properties
+		this.WhenAnyValue(
+				viewModel => viewModel.Thumbnail,
+				viewModel => viewModel.Visible,
+				viewModel => viewModel.Opacity,
+				viewModel => viewModel.DestinationRect,
+				viewModel => viewModel.SourceClientAreaOnly,
+				( thumbnail, visible, opacity, destinationRect, clientAreaOnly ) =>
+				{
+					var properties = new DwmApi.ThumbnailProperties();
+					properties.SetVisible( visible );
+					properties.SetOpacity( opacity );
+					properties.SetDestinationRect( destinationRect );
+					properties.SetSourceClientAreaOnly( clientAreaOnly );
+					return (thumbnail, properties);
+				} )
 			.ObserveOn( RxApp.MainThreadScheduler )
-			.Subscribe( SetOpacity! );
-		this.WhenAnyValue( viewModel => viewModel.Thumbnail, viewModel => viewModel.Visible )
-			.Where( tuple => tuple.Item1 is not null )
-			.ObserveOn( RxApp.MainThreadScheduler )
-			.Subscribe( SetVisible! );
-		this.WhenAnyValue( viewModel => viewModel.Thumbnail, viewModel => viewModel.SourceClientAreaOnly )
-			.Where( tuple => tuple.Item1 is not null )
-			.ObserveOn( RxApp.MainThreadScheduler )
-			.Subscribe( SetSourceClientAreaOnly! );
-		// this.WhenAnyValue( viewModel => viewModel.Thumbnail, viewModel => viewModel.SourceRect )
-		// 	.Where( tuple => tuple.Item1 is not null )
-		// 	.ObserveOn( RxApp.MainThreadScheduler )
-		// 	.Subscribe( SetSourceRect! );
-		this.WhenAnyValue( viewModel => viewModel.Thumbnail, viewModel => viewModel.DestinationRect )
-			.Where( tuple => tuple.Item1 is not null )
-			.ObserveOn( RxApp.MainThreadScheduler )
-			.Subscribe( SetDestinationRect! );
+			.Subscribe( tuple => tuple.thumbnail?.SetProperties( ref tuple.properties ) );
+
+		// Maintain a bool of whether the thumbnail is valid or not
 		this.WhenAnyValue( viewModel => viewModel.Thumbnail )
 			.Select( thumbnail => thumbnail is not null )
 			.ObserveOn( RxApp.MainThreadScheduler )
 			.ToPropertyEx( this, viewModel => viewModel.HasThumbnail );
+
+		// Maintain a read-only property of the window's actual size
 		this.WhenAnyValue( viewModel => viewModel.SourceWindow )
 			.ObserveOn( RxApp.MainThreadScheduler )
-			.Select( window =>
-			{
-				if ( window.IsNull )
-				{
-					return Observable.Never<Margins>();
-				}
-				else
-				{
-					return User32.OnWindowMoveSize( window );
-				}
-			} )
+			.Select( window => window.IsNull ? Observable.Never<Margins>() : User32.OnWindowMoveSize( window ) )
 			.Switch()
 			.Select( margins => new Size( margins.Right - margins.Left, margins.Bottom - margins.Top ) )
 			.ToPropertyEx( this, viewModel => viewModel.SourceSize );
 
 		this.WhenActivated( d =>
 		{
+			// Create a thumbnail when the window properties are properly set
 			this.WhenAnyValue( viewModel => viewModel.DestinationWindow, viewModel => viewModel.SourceWindow )
 				.ObserveOn( RxApp.MainThreadScheduler )
 				.Select( tuple =>
@@ -98,30 +91,5 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 				.ToPropertyEx( this, viewModel => viewModel.Thumbnail )
 				.DisposeWith( d );
 		} );
-	}
-
-	private static void SetOpacity( (DwmApi.Thumbnail Thumbnail, byte Value) tuple )
-	{
-		tuple.Thumbnail.SetProperties( props => props.SetOpacity( tuple.Value ) );
-	}
-
-	private static void SetVisible( (DwmApi.Thumbnail Thumbnail, bool Value) tuple )
-	{
-		tuple.Thumbnail.SetProperties( props => props.SetVisible( tuple.Value ) );
-	}
-
-	private static void SetSourceClientAreaOnly( (DwmApi.Thumbnail Thumbnail, bool Value) tuple )
-	{
-		tuple.Thumbnail.SetProperties( props => props.SetSourceClientAreaOnly( tuple.Value ) );
-	}
-
-	// private static void SetSourceRect( (DwmApi.Thumbnail Thumbnail, Margins Value) tuple )
-	// {
-	// 	tuple.Thumbnail.SetProperties( props => props.SetSourceRect( tuple.Value ) );
-	// }
-
-	private static void SetDestinationRect( (DwmApi.Thumbnail Thumbnail, Margins Value) tuple )
-	{
-		tuple.Thumbnail.SetProperties( props => props.SetDestinationRect( tuple.Value ) );
 	}
 }

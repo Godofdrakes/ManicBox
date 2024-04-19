@@ -6,7 +6,7 @@ namespace ManicBox.Interop;
 
 public static partial class DwmApi
 {
-	public delegate void ThumbnailPropertyAction( ThumbnailPropertyBuilder builder );
+	public delegate void ThumbnailPropertyAction( ref ThumbnailProperties properties );
 
 	[Flags]
 	internal enum ThumbnailFlags
@@ -36,50 +36,35 @@ public static partial class DwmApi
 		internal byte Opacity;
 		[MarshalAs( UnmanagedType.Bool )] internal bool Visible;
 		[MarshalAs( UnmanagedType.Bool )] internal bool SourceClientAreaOnly;
-	}
 
-	public class ThumbnailPropertyBuilder
-	{
-		internal ThumbnailProperties Properties;
-
-		public ThumbnailPropertyBuilder SetDestinationRect( Margins rect )
+		public void SetDestinationRect( Margins rect )
 		{
-			Properties.Flags |= ThumbnailFlags.RectDestination;
-			Properties.Destination = rect;
-
-			return this;
+			Flags |= ThumbnailFlags.RectDestination;
+			Destination = rect;
 		}
 
-		public ThumbnailPropertyBuilder SetSourceRect( Margins rect )
+		public void SetSourceRect( Margins rect )
 		{
-			Properties.Flags |= ThumbnailFlags.RectSource;
-			Properties.Source = rect;
-
-			return this;
+			Flags |= ThumbnailFlags.RectSource;
+			Source = rect;
 		}
 
-		public ThumbnailPropertyBuilder SetOpacity( byte opacity )
+		public void SetOpacity( byte opacity )
 		{
-			Properties.Flags |= ThumbnailFlags.Opacity;
-			Properties.Opacity = opacity;
-
-			return this;
+			Flags |= ThumbnailFlags.Opacity;
+			Opacity = opacity;
 		}
 
-		public ThumbnailPropertyBuilder SetVisible( bool visible )
+		public void SetVisible( bool visible )
 		{
-			Properties.Flags |= ThumbnailFlags.Visible;
-			Properties.Visible = visible;
-
-			return this;
+			Flags |= ThumbnailFlags.Visible;
+			Visible = visible;
 		}
 
-		public ThumbnailPropertyBuilder SetSourceClientAreaOnly( bool sourceClientAreaOnly )
+		public void SetSourceClientAreaOnly( bool sourceClientAreaOnly )
 		{
-			Properties.Flags |= ThumbnailFlags.SourceClientAreaOnly;
-			Properties.SourceClientAreaOnly = sourceClientAreaOnly;
-
-			return this;
+			Flags |= ThumbnailFlags.SourceClientAreaOnly;
+			SourceClientAreaOnly = sourceClientAreaOnly;
 		}
 	}
 
@@ -110,19 +95,37 @@ public static partial class DwmApi
 			return Size.Empty;
 		}
 
-		public Thumbnail SetProperties( ThumbnailPropertyAction action )
+		public Thumbnail SetProperties( ref ThumbnailProperties thumbnailProperties )
 		{
-			ArgumentNullException.ThrowIfNull( action );
-
-			var builder = new ThumbnailPropertyBuilder();
-
-			action( builder );
-
 			if ( _handle.IsValid )
 			{
 				try
 				{
-					UpdateThumbnailProperties( _handle, ref builder.Properties );
+					UpdateThumbnailProperties( _handle, ref thumbnailProperties );
+				}
+				catch ( ArgumentException )
+				{
+					// The thumbnail handle was already invalid
+					_handle = HANDLE.Null;
+				}
+			}
+
+			return this;
+		}
+
+		public Thumbnail SetProperties( ThumbnailPropertyAction action )
+		{
+			ArgumentNullException.ThrowIfNull( action );
+
+			if ( _handle.IsValid )
+			{
+				var properties = new ThumbnailProperties();
+
+				action( ref properties );
+
+				try
+				{
+					UpdateThumbnailProperties( _handle, ref properties );
 				}
 				catch ( ArgumentException )
 				{
