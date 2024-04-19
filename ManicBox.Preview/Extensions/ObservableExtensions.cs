@@ -1,7 +1,7 @@
 ﻿using System.Reactive.Disposables;
 using System.Reactive.Linq;
 
-namespace ManicBox.Preview;
+namespace ManicBox.Preview.Extensions;
 
 public static class ObservableExtensions
 {

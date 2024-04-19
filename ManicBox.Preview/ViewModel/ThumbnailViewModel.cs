@@ -2,6 +2,8 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using ManicBox.Interop;
+using ManicBox.Interop.Common;
+using ManicBox.Preview.Extensions;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -17,7 +19,7 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 	[Reactive] public bool SourceClientAreaOnly { get; set; } = true;
 
 	// [Reactive] public Rectangle SourceRect { get; set; }
-	[Reactive] public Rectangle DestinationRect { get; set; }
+	[Reactive] public Margins DestinationRect { get; set; }
 
 	[Reactive] public HWND DestinationWindow { get; set; }
 	[Reactive] public HWND SourceWindow { get; set; }
@@ -101,7 +103,7 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 	// 	tuple.Thumbnail.SetProperties( props => props.SetSourceRect( tuple.Value ) );
 	// }
 
-	private static void SetDestinationRect( (DwmApi.Thumbnail Thumbnail, Rectangle Value) tuple )
+	private static void SetDestinationRect( (DwmApi.Thumbnail Thumbnail, Margins Value) tuple )
 	{
 		tuple.Thumbnail.SetProperties( props => props.SetDestinationRect( tuple.Value ) );
 	}

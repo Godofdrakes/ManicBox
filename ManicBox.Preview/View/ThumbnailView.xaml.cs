@@ -1,11 +1,9 @@
-﻿using System.Drawing;
-using System.Reactive;
+﻿using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
+using ManicBox.Interop.Common;
 using ReactiveUI;
-using Point = System.Windows.Point;
-using Size = System.Windows.Size;
 
 namespace ManicBox.Preview.View;
 
@@ -36,16 +34,18 @@ public partial class ThumbnailView
 			handler => this.LayoutUpdated -= handler );
 	}
 
-	private Rectangle GetClientArea()
+	private Margins GetClientArea()
 	{
 		var window = Window.GetWindow( this );
 
-		Point pos = this.ClientArea
+		var topLeft = this.ClientArea
 			.TransformToAncestor( window! )
 			.Transform( new Point( 0, 0 ) );
 
-		Size size = this.ClientArea.RenderSize;
+		var bottomRight = this.ClientArea
+			.TransformToAncestor( window! )
+			.Transform( new Point( this.ClientArea.ActualWidth, this.ClientArea.ActualHeight ) );
 
-		return new Rectangle( (int)pos.X, (int)pos.Y, (int)size.Width, (int)size.Height );
+		return new Margins( (int)topLeft.X, (int)topLeft.Y, (int)bottomRight.X, (int)bottomRight.Y );
 	}
 }

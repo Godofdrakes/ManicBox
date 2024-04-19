@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Runtime.InteropServices;
+using ManicBox.Interop.Common;
 
 namespace ManicBox.Interop;
 
@@ -30,8 +31,8 @@ public static partial class DwmApi
 	public struct ThumbnailProperties
 	{
 		internal ThumbnailFlags Flags;
-		internal Rectangle Destination;
-		internal Rectangle Source;
+		internal Margins Destination;
+		internal Margins Source;
 		internal byte Opacity;
 		[MarshalAs( UnmanagedType.Bool )] internal bool Visible;
 		[MarshalAs( UnmanagedType.Bool )] internal bool SourceClientAreaOnly;
@@ -41,7 +42,7 @@ public static partial class DwmApi
 	{
 		internal ThumbnailProperties Properties;
 
-		public ThumbnailPropertyBuilder SetDestinationRect( Rectangle rect )
+		public ThumbnailPropertyBuilder SetDestinationRect( Margins rect )
 		{
 			Properties.Flags |= ThumbnailFlags.RectDestination;
 			Properties.Destination = rect;
@@ -49,7 +50,7 @@ public static partial class DwmApi
 			return this;
 		}
 
-		public ThumbnailPropertyBuilder SetSourceRect( Rectangle rect )
+		public ThumbnailPropertyBuilder SetSourceRect( Margins rect )
 		{
 			Properties.Flags |= ThumbnailFlags.RectSource;
 			Properties.Source = rect;
