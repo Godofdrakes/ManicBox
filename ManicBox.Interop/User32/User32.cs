@@ -1,4 +1,5 @@
-﻿using System.Reactive.Linq;
+﻿using System.Drawing;
+using System.Reactive.Linq;
 using ManicBox.Interop.Exceptions;
 
 namespace ManicBox.Interop;
@@ -49,7 +50,7 @@ public static partial class User32
 
 		var newWindows = EventHook( WinEvent.ObjectCreate )
 			.Where( e => e.idObject == OBJID_WINDOW )
-			.Where( e => e.idObject == CHILDID_SELF )
+			.Where( e => e.idChild == CHILDID_SELF )
 			.Select( e => e.hWnd );
 
 		return nowWindows.Concat( newWindows );
@@ -59,7 +60,7 @@ public static partial class User32
 	{
 		return EventHook( WinEvent.ObjectDestroy )
 			.Where( e => e.idObject == OBJID_WINDOW )
-			.Where( e => e.idObject == CHILDID_SELF )
+			.Where( e => e.idChild == CHILDID_SELF )
 			.Select( e => e.hWnd );
 	}
 
