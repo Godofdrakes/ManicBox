@@ -77,24 +77,6 @@ public static partial class DwmApi
 			RegisterThumbnail( windowDestination, windowSource, out _handle );
 		}
 
-		public Size GetSourceSize()
-		{
-			if ( _handle.IsValid )
-			{
-				try
-				{
-					return QueryThumbnailSourceSize( _handle );
-				}
-				catch ( ArgumentException )
-				{
-					// The thumbnail handle was already invalid
-					_handle = HANDLE.Null;
-				}
-			}
-
-			return Size.Empty;
-		}
-
 		public Thumbnail SetProperties( ref ThumbnailProperties thumbnailProperties )
 		{
 			if ( _handle.IsValid )
