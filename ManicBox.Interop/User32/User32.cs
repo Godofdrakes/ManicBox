@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Reactive.Linq;
+using ManicBox.Interop.Common;
 using ManicBox.Interop.Exceptions;
 
 namespace ManicBox.Interop;
@@ -31,6 +32,23 @@ public static partial class User32
 			.Select( e => e.hWnd )
 			.StartWith( hWnd )
 			.Select( GetWindowTitle );
+	}
+
+	public static IObservable<Margins> OnWindowMoveSize( HWND hWnd )
+	{
+		var idThread = GetWindowThreadProcessId( hWnd, out var idProcess );
+
+		if ( idThread == 0 )
+		{
+			MarshalUtil.ThrowLastError();
+		}
+
+		return EventHook( WinEvent.SystemMoveSizeEnd, idProcess, idThread )
+			.Where( e => e.idObject == OBJID_WINDOW )
+			.Where( e => e.idChild == CHILDID_SELF )
+			.Select( e => e.hWnd )
+			.StartWith( hWnd )
+			.Select( GetWindowRect );
 	}
 
 	private const int WS_VISIBLE = 0x10000000;

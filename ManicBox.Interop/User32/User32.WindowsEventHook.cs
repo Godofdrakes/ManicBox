@@ -10,6 +10,7 @@ public static partial class User32
 	internal enum WinEvent : uint
 	{
 		SystemForeground = 0x0003,
+		SystemMoveSizeEnd = 0x000B,
 		ObjectCreate = 0x8000,
 		ObjectDestroy = 0x8001,
 		ObjectNameChange = 0x800C,

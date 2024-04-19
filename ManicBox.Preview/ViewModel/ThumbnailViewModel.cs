@@ -18,13 +18,14 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 
 	[Reactive] public bool SourceClientAreaOnly { get; set; } = true;
 
-	// [Reactive] public Rectangle SourceRect { get; set; }
-	[Reactive] public Margins DestinationRect { get; set; }
+	// [Reactive] public Margins SourceRect { get; set; } = Margins.Fill;
+	[Reactive] public Margins DestinationRect { get; set; } = Margins.Fill;
 
 	[Reactive] public HWND DestinationWindow { get; set; }
 	[Reactive] public HWND SourceWindow { get; set; }
 
 	[ObservableAsProperty] public bool HasThumbnail { get; }
+	[ObservableAsProperty] public Size SourceSize { get; }
 	[ObservableAsProperty] private DwmApi.Thumbnail? Thumbnail { get; }
 
 	public ThumbnailViewModel()
@@ -53,6 +54,22 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 			.Select( thumbnail => thumbnail is not null )
 			.ObserveOn( RxApp.MainThreadScheduler )
 			.ToPropertyEx( this, viewModel => viewModel.HasThumbnail );
+		this.WhenAnyValue( viewModel => viewModel.SourceWindow )
+			.ObserveOn( RxApp.MainThreadScheduler )
+			.Select( window =>
+			{
+				if ( window.IsNull )
+				{
+					return Observable.Never<Margins>();
+				}
+				else
+				{
+					return User32.OnWindowMoveSize( window );
+				}
+			} )
+			.Switch()
+			.Select( margins => new Size( margins.Right - margins.Left, margins.Bottom - margins.Top ) )
+			.ToPropertyEx( this, viewModel => viewModel.SourceSize );
 
 		this.WhenActivated( d =>
 		{
@@ -98,7 +115,7 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 		tuple.Thumbnail.SetProperties( props => props.SetSourceClientAreaOnly( tuple.Value ) );
 	}
 
-	// private static void SetSourceRect( (DwmApi.Thumbnail Thumbnail, Rectangle Value) tuple )
+	// private static void SetSourceRect( (DwmApi.Thumbnail Thumbnail, Margins Value) tuple )
 	// {
 	// 	tuple.Thumbnail.SetProperties( props => props.SetSourceRect( tuple.Value ) );
 	// }

@@ -1,9 +1,10 @@
-﻿using System.Reactive;
-using System.Reactive.Disposables;
+﻿using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using ManicBox.Interop.Common;
+using ManicBox.Reactive.Extensions;
 using ReactiveUI;
+using Size = System.Windows.Size;
 
 namespace ManicBox.Preview.View;
 
@@ -20,18 +21,20 @@ public partial class ThumbnailView
 				.BindTo( this, view => view.TextBlock.Visibility )
 				.DisposeWith( d );
 
+			this.WhenAnyValue( view => view.ViewModel!.SourceSize )
+				.Select( size => new Size( size.Width, size.Height ) )
+				.Subscribe( size =>
+				{
+					this.ClientArea.Width = size.Width;
+					this.ClientArea.Height = size.Height;
+				} )
+				.DisposeWith( d );
+
 			this.OnLayoutUpdated()
 				.Select( _ => GetClientArea() )
 				.BindTo( ViewModel, viewModel => viewModel.DestinationRect )
 				.DisposeWith( d );
 		} );
-	}
-
-	private IObservable<EventPattern<object>> OnLayoutUpdated()
-	{
-		return Observable.FromEventPattern(
-			handler => this.LayoutUpdated += handler,
-			handler => this.LayoutUpdated -= handler );
 	}
 
 	private Margins GetClientArea()

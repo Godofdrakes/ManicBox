@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
+using ManicBox.Interop.Common;
 using ManicBox.Interop.Exceptions;
 
 namespace ManicBox.Interop;
@@ -7,7 +8,7 @@ namespace ManicBox.Interop;
 public static partial class User32
 {
 	public delegate bool EnumWindowsProc( HWND hWnd, nint lParam );
-	
+
 	[DllImport( nameof(User32), SetLastError = false )]
 	internal static extern int GetWindowLong( HWND hWnd, int nIndex );
 
@@ -25,6 +26,9 @@ public static partial class User32
 
 	[DllImport( nameof(User32), SetLastError = true, CharSet = CharSet.Auto )]
 	internal static extern int GetWindowText( HWND hWnd, StringBuilder text, int count );
+
+	[DllImport( nameof(User32), SetLastError = true )]
+	internal static extern bool GetWindowRect( HWND hWnd, out Margins lpRect );
 
 	[DllImport( nameof(User32), SetLastError = true )]
 	internal static extern uint GetWindowThreadProcessId( HWND hWnd, out uint lpdwProcessId );
@@ -53,6 +57,18 @@ public static partial class User32
 		}
 
 		return builder.ToString();
+	}
+
+	internal static Margins GetWindowRect( HWND hWnd )
+	{
+		if ( !GetWindowRect( hWnd, out Margins rect ) )
+		{
+			MarshalUtil.ThrowLastError();
+
+			return default;
+		}
+
+		return rect;
 	}
 
 	internal static IEnumerable<HWND> EnumerateWindows()

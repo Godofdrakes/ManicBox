@@ -20,9 +20,9 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<Grid x:Name="ClientArea"
-			HorizontalAlignment="Stretch"
-			VerticalAlignment="Stretch" />
+		<Viewbox Stretch="Uniform" Margin="8">
+			<Grid x:Name="ClientArea" />
+		</Viewbox>
 
 		<TextBlock x:Name="TextBlock"
 			Text="ThumbnailView"
