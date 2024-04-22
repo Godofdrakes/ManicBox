@@ -1,6 +1,9 @@
 ﻿using System.Reflection;
 using System.Windows;
-using ManicBox.Reactive.ViewModelBase;
+using ManicBox.Preview.View;
+using ManicBox.Preview.ViewModel;
+using ManicBox.Reactive.Services.Implementation;
+using ManicBox.Reactive.Services.Interface;
 
 namespace ManicBox.Preview;
 
@@ -9,11 +12,13 @@ namespace ManicBox.Preview;
 /// </summary>
 public partial class App : Application
 {
+	private readonly IWindowHandleService _windowHandleService = new WindowHandleService();
+
 	private void App_OnStartup( object sender, StartupEventArgs e )
 	{
 		this.MainWindow = new MainWindow()
 		{
-			ViewModel = new WindowViewModel()
+			ViewModel = new MainWindowViewModel( _windowHandleService )
 			{
 				Title = Assembly.GetExecutingAssembly().FullName
 			}

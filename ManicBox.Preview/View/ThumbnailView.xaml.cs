@@ -32,12 +32,12 @@ public partial class ThumbnailView
 
 			this.OnLayoutUpdated()
 				.Select( _ => GetClientArea() )
-				.BindTo( ViewModel, viewModel => viewModel.DestinationRect )
+				.BindTo( this, view => view.ViewModel!.DestinationRect )
 				.DisposeWith( d );
 
 			this.OnLayoutUpdated()
 				.Select( _ => IsUserVisible() )
-				.BindTo( ViewModel, viewModel => viewModel.Visible )
+				.BindTo( this, view => view.ViewModel!.Visible )
 				.DisposeWith( d );
 		} );
 	}

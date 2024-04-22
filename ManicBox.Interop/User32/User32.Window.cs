@@ -36,7 +36,7 @@ public static partial class User32
 	[DllImport( nameof(User32), SetLastError = true )]
 	internal static extern bool EnumWindows( EnumWindowsProc lpEnumFunc, nint lParam );
 
-	internal static string GetWindowTitle( HWND hWnd )
+	public static string GetWindowTitle( HWND hWnd )
 	{
 		var len = GetWindowTextLength( hWnd );
 
@@ -59,7 +59,7 @@ public static partial class User32
 		return builder.ToString();
 	}
 
-	internal static Margins GetWindowRect( HWND hWnd )
+	public static Margins GetWindowRect( HWND hWnd )
 	{
 		if ( !GetWindowRect( hWnd, out Margins rect ) )
 		{
@@ -71,7 +71,7 @@ public static partial class User32
 		return rect;
 	}
 
-	internal static IEnumerable<HWND> EnumerateWindows()
+	public static IEnumerable<HWND> EnumerateWindows()
 	{
 		var windows = new List<HWND>();
 
@@ -89,7 +89,7 @@ public static partial class User32
 		return windows;
 	}
 
-	internal static IEnumerable<HWND> EnumerateWindows( Func<HWND, bool> filter )
+	public static IEnumerable<HWND> EnumerateWindows( Func<HWND, bool> filter )
 	{
 		ArgumentNullException.ThrowIfNull( filter );
 

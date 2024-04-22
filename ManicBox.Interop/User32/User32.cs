@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Reactive.Linq;
-using ManicBox.Interop.Common;
+﻿using System.Reactive.Linq;
 using ManicBox.Interop.Exceptions;
 
 namespace ManicBox.Interop;
@@ -17,38 +15,20 @@ public static partial class User32
 	}
 
 	// Observe changes in a window's title
-	public static IObservable<string> OnWindowTitleChanged( HWND hWnd )
+	public static IObservable<HWND> OnWindowTitleChanged()
 	{
-		var idThread = GetWindowThreadProcessId( hWnd, out var idProcess );
-
-		if ( idThread == 0 )
-		{
-			MarshalUtil.ThrowLastError();
-		}
-
-		return EventHook( WinEvent.ObjectNameChange, idProcess, idThread )
+		return EventHook( WinEvent.ObjectNameChange )
 			.Where( e => e.idObject == OBJID_WINDOW )
 			.Where( e => e.idChild == CHILDID_SELF )
-			.Select( e => e.hWnd )
-			.StartWith( hWnd )
-			.Select( GetWindowTitle );
+			.Select( e => e.hWnd );
 	}
 
-	public static IObservable<Margins> OnWindowMoveSize( HWND hWnd )
+	public static IObservable<HWND> OnWindowMoveSize()
 	{
-		var idThread = GetWindowThreadProcessId( hWnd, out var idProcess );
-
-		if ( idThread == 0 )
-		{
-			MarshalUtil.ThrowLastError();
-		}
-
-		return EventHook( WinEvent.SystemMoveSizeEnd, idProcess, idThread )
+		return EventHook( WinEvent.SystemMoveSizeEnd )
 			.Where( e => e.idObject == OBJID_WINDOW )
 			.Where( e => e.idChild == CHILDID_SELF )
-			.Select( e => e.hWnd )
-			.StartWith( hWnd )
-			.Select( GetWindowRect );
+			.Select( e => e.hWnd );
 	}
 
 	private const int WS_VISIBLE = 0x10000000;
@@ -56,22 +36,10 @@ public static partial class User32
 
 	public static IObservable<HWND> OnWindowCreated()
 	{
-		var nowWindows = Observable.Create<HWND>( observer =>
-			EnumerateWindows( hwnd =>
-				{
-					var style = GetWindowLong( hwnd, GWL_STYLE );
-					var title = GetWindowTextLength( hwnd );
-					return (style & WS_VISIBLE) != 0 && title > 0;
-				} )
-				.ToObservable()
-				.Subscribe( observer ) );
-
-		var newWindows = EventHook( WinEvent.ObjectCreate )
+		return EventHook( WinEvent.ObjectCreate )
 			.Where( e => e.idObject == OBJID_WINDOW )
 			.Where( e => e.idChild == CHILDID_SELF )
 			.Select( e => e.hWnd );
-
-		return nowWindows.Concat( newWindows );
 	}
 
 	public static IObservable<HWND> OnWindowDestroyed()

@@ -4,6 +4,8 @@ using System.Reactive.Linq;
 using ManicBox.Interop;
 using ManicBox.Interop.Common;
 using ManicBox.Preview.Extensions;
+using ManicBox.Reactive.Extensions;
+using ManicBox.Reactive.ViewModel;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -22,7 +24,7 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 	[Reactive] public Margins DestinationRect { get; set; } = Margins.Fill;
 
 	[Reactive] public HWND DestinationWindow { get; set; }
-	[Reactive] public HWND SourceWindow { get; set; }
+	[Reactive] public WindowHandleViewModel? SourceWindow { get; set; }
 
 	[ObservableAsProperty] public bool HasThumbnail { get; }
 	[ObservableAsProperty] public Size SourceSize { get; }
@@ -58,7 +60,9 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 		// Maintain a read-only property of the window's actual size
 		this.WhenAnyValue( viewModel => viewModel.SourceWindow )
 			.ObserveOn( RxApp.MainThreadScheduler )
-			.Select( window => window.IsNull ? Observable.Never<Margins>() : User32.OnWindowMoveSize( window ) )
+			.Select( window => window is not null
+				? window.WhenAnyValue( viewModel => viewModel.WindowBounds )
+				: Observable.Never<Margins>() )
 			.Switch()
 			.Select( margins => new Size( margins.Right - margins.Left, margins.Bottom - margins.Top ) )
 			.ToPropertyEx( this, viewModel => viewModel.SourceSize );
@@ -66,26 +70,16 @@ public sealed class ThumbnailViewModel : ReactiveObject, IActivatableViewModel
 		this.WhenActivated( d =>
 		{
 			// Create a thumbnail when the window properties are properly set
-			this.WhenAnyValue( viewModel => viewModel.DestinationWindow, viewModel => viewModel.SourceWindow )
+			this.WhenAnyValue( viewModel => viewModel.SourceWindow, viewModel => viewModel.DestinationWindow )
 				.ObserveOn( RxApp.MainThreadScheduler )
 				.Select( tuple =>
 				{
-					if ( tuple.Item1.IsNull )
+					if ( tuple.Item1 is null )
 					{
 						return null;
 					}
 
-					if ( tuple.Item2.IsNull )
-					{
-						return null;
-					}
-
-					if ( tuple.Item1 == tuple.Item2 )
-					{
-						return null;
-					}
-
-					return new DwmApi.Thumbnail( tuple.Item1, tuple.Item2 );
+					return tuple.Item1.CreateThumbnail( tuple.Item2 );
 				} )
 				.DisposeEach()
 				.ToPropertyEx( this, viewModel => viewModel.Thumbnail )

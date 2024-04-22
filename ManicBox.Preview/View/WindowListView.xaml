@@ -8,13 +8,14 @@
 	xmlns:local="clr-namespace:ManicBox.Preview.View"
 	xmlns:viewBase="clr-namespace:ManicBox.Reactive.ViewBase;assembly=ManicBox.Reactive"
 	xmlns:viewModel="clr-namespace:ManicBox.Preview.ViewModel"
+	xmlns:viewModel1="clr-namespace:ManicBox.Reactive.ViewModel;assembly=ManicBox.Reactive"
 	mc:Ignorable="d"
 	d:DesignHeight="300" d:DesignWidth="300">
 	<Grid>
 		<ListView x:Name="ListView" HorizontalAlignment="Stretch">
 			<ListView.ItemTemplate>
-				<DataTemplate DataType="{x:Type viewModel:HWNDViewModel}">
-					<TextBlock Text="{Binding Title}"
+				<DataTemplate DataType="{x:Type viewModel1:WindowHandleViewModel}">
+					<TextBlock Text="{Binding WindowTitle}"
 						TextAlignment="Justify" />
 				</DataTemplate>
 			</ListView.ItemTemplate>
