@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Windows;
 using Dapplo.Microsoft.Extensions.Hosting.Wpf;
+using ManicBox.Common.Extensions;
 using ManicBox.WPF.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -17,33 +18,19 @@ public static class Program
 	{
 		var host = Host.CreateDefaultBuilder( args )
 			.ConfigureWpf<App>()
+			.ConfigureServices()
 			.Build();
 
 		host.InitializeSplat()
 			.Run();
 	}
 
-	private static IHostBuilder ConfigureWpf<T>( this IHostBuilder hostBuilder )
-		where T : Application
+	private static IHostBuilder ConfigureServices( this IHostBuilder hostBuilder )
 	{
-		hostBuilder.ConfigureWpf( builder => { builder.UseApplication<T>(); } );
-
-		hostBuilder.ConfigureServices( services =>
-		{
-			// Splat needs all this for reasons
-			services.UseMicrosoftDependencyResolver();
-
-			var locator = Locator.CurrentMutable;
-			locator.InitializeSplat();
-			locator.InitializeReactiveUI();
-		} );
-
 		hostBuilder.ConfigureServices( services => services
 			.AddHostedServices( Assembly.GetExecutingAssembly() )
 			.AddSingleton<IProcessListService, ProcessListService>()
 			.AddSingleton<IProcessFilterService, ProcessFilterService>() );
-
-		hostBuilder.UseWpfLifetime();
 
 		return hostBuilder;
 	}
@@ -64,13 +51,5 @@ public static class Program
 		}
 
 		return services;
-	}
-
-	private static IHost InitializeSplat( this IHost host )
-	{
-		// Splat needs this for reasons
-		host.Services.UseMicrosoftDependencyResolver();
-
-		return host;
 	}
 }

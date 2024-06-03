@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.ReactiveUI.Wpf" Version="1.0.14" />
       <PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
       <PackageReference Include="ReactiveUI.WPF" Version="20.1.1" />
     </ItemGroup>
@@ -25,6 +26,8 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+      <ApplicationDefinition Remove="App.xaml" />
+      <Page Include="App.xaml" />
     </ItemGroup>
 
 </Project>

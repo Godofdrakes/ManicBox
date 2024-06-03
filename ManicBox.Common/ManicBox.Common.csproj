@@ -8,6 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Dapplo.Microsoft.Extensions.Hosting.ReactiveUI.Wpf" Version="1.0.14" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
       <PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
       <PackageReference Include="ReactiveUI.WPF" Version="20.1.1" />
     </ItemGroup>
