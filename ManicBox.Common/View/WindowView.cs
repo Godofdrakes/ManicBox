@@ -1,4 +1,5 @@
 ﻿using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Windows;
 using ManicBox.Common.ViewModel;
 using ReactiveUI;
@@ -13,30 +14,32 @@ public class WindowView<TViewModel> : Window, IViewFor<TViewModel>
 			nameof(ViewModel),
 			typeof(TViewModel),
 			typeof(WindowView<TViewModel>),
-			new PropertyMetadata(null));
+			new PropertyMetadata( null ) );
 
 	public TViewModel? ViewModel
 	{
-		get => (TViewModel) GetValue(ViewModelProperty);
-		set => SetValue(ViewModelProperty, value);
+		get => (TViewModel)GetValue( ViewModelProperty );
+		set => SetValue( ViewModelProperty, value );
 	}
 
 	object? IViewFor.ViewModel
 	{
 		get => ViewModel;
-		set => ViewModel = (TViewModel?) value;
+		set => ViewModel = (TViewModel?)value;
 	}
 
 	public WindowView()
 	{
-		this.WhenActivated(d =>
+		this.WhenActivated( d =>
 		{
-			this.WhenAnyValue(view => view.ViewModel)
-				.BindTo(this, view => view.DataContext)
-				.DisposeWith(d);
+			this.WhenAnyValue( view => view.ViewModel )
+				.BindTo( this, view => view.DataContext )
+				.DisposeWith( d );
 
-			this.OneWayBind(ViewModel, viewModel => viewModel.Title, view => view.Title)
-				.DisposeWith(d);
-		});
+			this.WhenAnyValue( view => view.ViewModel!.Title )
+				.Where( title => !string.IsNullOrEmpty( title ) )
+				.BindTo( this, view => view.Title )
+				.DisposeWith( d );
+		} );
 	}
 }
