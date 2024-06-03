@@ -1,4 +1,4 @@
-﻿using ManicBox.Reactive.ViewModelBase;
+﻿using ManicBox.Common.ViewModel;
 using ManicBox.WPF.Services;
 
 namespace ManicBox.WPF.ViewModel;

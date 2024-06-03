@@ -1,4 +1,4 @@
-﻿<viewBase:WindowView
+﻿<view:WindowView
 	x:Class="ManicBox.WPF.View.MainWindow"
 	x:TypeArguments="viewModel:MainWindowViewModel"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,7 +8,7 @@
 	xmlns:local="clr-namespace:ManicBox.WPF"
 	xmlns:viewModel="clr-namespace:ManicBox.WPF.ViewModel"
 	xmlns:control="clr-namespace:ManicBox.WPF.View.Control"
-	xmlns:viewBase="clr-namespace:ManicBox.Reactive.ViewBase;assembly=ManicBox.Reactive"
+	xmlns:view="clr-namespace:ManicBox.Common.View;assembly=ManicBox.Common"
 	mc:Ignorable="d"
 	d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}"
 	Title="MainWindow" Height="450" Width="800">
@@ -22,4 +22,4 @@
 		<control:ProcessListView Grid.Column="0" x:Name="ListView" />
 		<control:ProcessFilterView Grid.Column="1" x:Name="FilterView" />
 	</Grid>
-</viewBase:WindowView>
+</view:WindowView>

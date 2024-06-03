@@ -1,10 +1,11 @@
 ﻿using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
-namespace ManicBox.Reactive.ViewModelBase;
+namespace ManicBox.Common.ViewModel;
 
 public class WindowViewModel : ReactiveObject, IActivatableViewModel
 {
 	public ViewModelActivator Activator { get; } = new();
 
-	public string? Title { get; set; }
+	[Reactive] public string? Title { get; set; }
 }

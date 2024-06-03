@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using ReactiveUI;
 
-namespace ManicBox.Reactive.ViewBase;
+namespace ManicBox.Common.View;
 
 public class UserControlView<TViewModel> : UserControl, IViewFor<TViewModel>
 	where TViewModel : class
