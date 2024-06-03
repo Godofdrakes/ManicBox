@@ -12,16 +12,24 @@
 	mc:Ignorable="d"
 	d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}"
 	Title="MainWindow" Height="450" Width="800">
-	<Grid>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="1*" />
-			<ColumnDefinition Width="2*" />
-		</Grid.ColumnDefinitions>
+	<DockPanel>
+		<StatusBar DockPanel.Dock="Bottom">
+			<StatusBarItem>
+				<TextBlock Name="ItemListStatus" Text="ItemListStatus" />
+			</StatusBarItem>
+		</StatusBar>
 
-		<view:WindowListView Grid.Column="0"
-			x:Name="WindowListView" />
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="1*" />
+				<ColumnDefinition Width="2*" />
+			</Grid.ColumnDefinitions>
 
-		<view:ThumbnailView Grid.Column="1"
-			x:Name="ThumbnailView" />
-	</Grid>
+			<view:WindowListView Grid.Column="0"
+				x:Name="WindowListView" />
+
+			<view:ThumbnailView Grid.Column="1"
+				x:Name="ThumbnailView" />
+		</Grid>
+	</DockPanel>
 </viewBase:WindowView>

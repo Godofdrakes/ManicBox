@@ -29,6 +29,11 @@ public partial class MainWindow
 					viewModel => viewModel.ThumbnailViewModel,
 					view => view.ThumbnailView.ViewModel )
 				.DisposeWith( d );
+
+			this.OneWayBind( ViewModel,
+				viewModel => viewModel.WindowListViewModel.Windows.Count,
+				view => view.ItemListStatus.Text,
+				count => $"{count} Items" );
 		} );
 	}
 }
