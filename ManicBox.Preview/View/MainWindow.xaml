@@ -1,4 +1,4 @@
-﻿<view1:WindowView
+﻿<common:WindowView
 	x:Class="ManicBox.Preview.View.MainWindow"
 	x:TypeArguments="viewModel:MainWindowViewModel"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,7 +8,7 @@
 	xmlns:local="clr-namespace:ManicBox.Preview"
 	xmlns:view="clr-namespace:ManicBox.Preview.View"
 	xmlns:viewModel="clr-namespace:ManicBox.Preview.ViewModel"
-	xmlns:view1="clr-namespace:ManicBox.Common.View;assembly=ManicBox.Common"
+	xmlns:common="clr-namespace:ManicBox.Common.View;assembly=ManicBox.Common"
 	mc:Ignorable="d"
 	d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}"
 	Title="MainWindow" Height="450" Width="800">
@@ -32,4 +32,4 @@
 				x:Name="ThumbnailView" />
 		</Grid>
 	</DockPanel>
-</view1:WindowView>
+</common:WindowView>
