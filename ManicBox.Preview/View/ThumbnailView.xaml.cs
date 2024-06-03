@@ -1,8 +1,8 @@
 ﻿using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
+using ManicBox.Common.Extensions;
 using ManicBox.Interop.Common;
-using ManicBox.Reactive.Extensions;
 using ReactiveUI;
 using Size = System.Windows.Size;
 

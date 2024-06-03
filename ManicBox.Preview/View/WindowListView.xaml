@@ -7,14 +7,14 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="clr-namespace:ManicBox.Preview.View"
 	xmlns:viewModel="clr-namespace:ManicBox.Preview.ViewModel"
-	xmlns:viewModel1="clr-namespace:ManicBox.Reactive.ViewModel;assembly=ManicBox.Reactive"
 	xmlns:view="clr-namespace:ManicBox.Common.View;assembly=ManicBox.Common"
+	xmlns:services="clr-namespace:ManicBox.Reactive.ViewModel;assembly=ManicBox.Services"
 	mc:Ignorable="d"
 	d:DesignHeight="300" d:DesignWidth="300">
 	<Grid>
 		<ListView x:Name="ListView" HorizontalAlignment="Stretch">
 			<ListView.ItemTemplate>
-				<DataTemplate DataType="{x:Type viewModel1:WindowHandleViewModel}">
+				<DataTemplate DataType="{x:Type services:WindowHandleViewModel}">
 					<TextBlock Text="{Binding WindowTitle}"
 						TextAlignment="Justify" />
 				</DataTemplate>

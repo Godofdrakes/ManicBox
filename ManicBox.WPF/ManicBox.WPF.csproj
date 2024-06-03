@@ -26,7 +26,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ManicBox.Common\ManicBox.Common.csproj" />
-      <ProjectReference Include="..\ManicBox.Reactive\ManicBox.Reactive.csproj" />
     </ItemGroup>
 
 </Project>

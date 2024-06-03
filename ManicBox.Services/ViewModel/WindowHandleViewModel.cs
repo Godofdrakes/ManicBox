@@ -1,5 +1,4 @@
 ﻿using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using ManicBox.Interop;
 using ManicBox.Interop.Common;
 using ManicBox.Reactive.Services.Interface;
@@ -10,35 +9,39 @@ namespace ManicBox.Reactive.ViewModel;
 
 public sealed class WindowHandleViewModel : ReactiveObject, IDisposable
 {
-	[Reactive] public string ProcessName { get; private set; } = string.Empty;
-	[Reactive] public string WindowTitle { get; private set; } = string.Empty;
-	[Reactive] public Margins WindowBounds { get; private set; }
-	[Reactive] public bool IsForegroundWindow { get; private set; }
+	[Reactive] public HWND Handle { get; set; }
+	[Reactive] public string ProcessName { get; set; } = string.Empty;
+	[Reactive] public string WindowTitle { get; set; } = string.Empty;
+	[Reactive] public Margins WindowBounds { get; set; }
+	[Reactive] public bool IsForegroundWindow { get; set; }
 
 	private readonly CompositeDisposable _onDispose = new();
 
-	private readonly HWND _hWnd;
-
-	public WindowHandleViewModel( HWND hWnd, IWindowHandleService windowHandleService )
+	public WindowHandleViewModel()
 	{
+		// Does nothing. Used for design-time data and mockups.
+	}
+
+	public WindowHandleViewModel( HWND hWnd, IWindowHandleService service )
+	{
+		ArgumentNullException.ThrowIfNull( service );
+
 		if ( hWnd.IsNull )
 		{
 			throw new ArgumentNullException( nameof(hWnd) );
 		}
 
-		ArgumentNullException.ThrowIfNull( windowHandleService );
+		this.Handle = hWnd;
 
-		_hWnd = hWnd;
-
-		windowHandleService.OnTitleChange( hWnd )
+		service.OnTitleChange( hWnd )
 			.BindTo( this, viewModel => viewModel.WindowTitle )
 			.DisposeWith( _onDispose );
 
-		windowHandleService.OnMoveSize( hWnd )
+		service.OnMoveSize( hWnd )
 			.BindTo( this, viewModel => viewModel.WindowBounds )
 			.DisposeWith( _onDispose );
 
-		windowHandleService.IsForeground( hWnd )
+		service.IsForeground( hWnd )
 			.BindTo( this, viewModel => viewModel.IsForegroundWindow )
 			.DisposeWith( _onDispose );
 	}
@@ -50,7 +53,7 @@ public sealed class WindowHandleViewModel : ReactiveObject, IDisposable
 			throw new InvalidOperationException();
 		}
 
-		return new DwmApi.Thumbnail( destinationWindow, _hWnd )
+		return new DwmApi.Thumbnail( destinationWindow, Handle )
 			.DisposeWith( _onDispose );
 	}
 

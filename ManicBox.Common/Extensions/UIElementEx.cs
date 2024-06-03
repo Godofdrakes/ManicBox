@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
-namespace ManicBox.Reactive.Extensions;
+namespace ManicBox.Common.Extensions;
 
 public static class UIElementEx
 {
