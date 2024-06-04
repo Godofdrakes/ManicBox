@@ -1,6 +1,7 @@
-﻿using System.Reflection;
-using System.Windows;
+﻿using System.Windows;
 using Dapplo.Microsoft.Extensions.Hosting.Wpf;
+using ManicBox.Common.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ReactiveUI;
 using Splat;
@@ -8,12 +9,12 @@ using Splat.Microsoft.Extensions.DependencyInjection;
 
 namespace ManicBox.Common.Extensions;
 
-public static class HostBuilderExtensions
+public static class HostExtensions
 {
 	public static IHostBuilder ConfigureWpf<T>( this IHostBuilder hostBuilder )
 		where T : Application
 	{
-		hostBuilder.ConfigureWpf( builder => { builder.UseApplication<T>(); } );
+		hostBuilder.ConfigureWpf( builder => builder.UseApplication<T>() );
 
 		hostBuilder.ConfigureServices( services =>
 		{
@@ -23,6 +24,11 @@ public static class HostBuilderExtensions
 			var locator = Locator.CurrentMutable;
 			locator.InitializeSplat();
 			locator.InitializeReactiveUI();
+		} );
+
+		hostBuilder.ConfigureServices( services =>
+		{
+			services.AddScoped<IScreen, ScreenRoutingService>();
 		} );
 
 		hostBuilder.UseWpfLifetime();
