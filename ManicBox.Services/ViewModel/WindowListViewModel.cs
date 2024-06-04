@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using DynamicData;
-using ManicBox.Reactive.Services.Interface;
+using ManicBox.Services.Interface;
 using ReactiveUI;
 
-namespace ManicBox.Reactive.ViewModel;
+namespace ManicBox.Services.ViewModel;
 
 public sealed class WindowListViewModel : ReactiveObject, IDisposable
 {

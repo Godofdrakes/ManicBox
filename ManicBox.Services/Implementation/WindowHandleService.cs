@@ -3,11 +3,11 @@ using System.Reactive.Linq;
 using DynamicData;
 using ManicBox.Interop;
 using ManicBox.Interop.Common;
-using ManicBox.Reactive.Services.Interface;
-using ManicBox.Reactive.ViewModel;
+using ManicBox.Services.Interface;
+using ManicBox.Services.ViewModel;
 using ReactiveUI;
 
-namespace ManicBox.Reactive.Services.Implementation;
+namespace ManicBox.Services.Implementation;
 
 public sealed class WindowHandleService : IWindowHandleService
 {

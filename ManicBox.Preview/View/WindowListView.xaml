@@ -8,7 +8,7 @@
 	xmlns:local="clr-namespace:ManicBox.Preview.View"
 	xmlns:viewModel="clr-namespace:ManicBox.Preview.ViewModel"
 	xmlns:view="clr-namespace:ManicBox.Common.View;assembly=ManicBox.Common"
-	xmlns:services="clr-namespace:ManicBox.Reactive.ViewModel;assembly=ManicBox.Services"
+	xmlns:services="clr-namespace:ManicBox.Services.ViewModel;assembly=ManicBox.Services"
 	mc:Ignorable="d"
 	d:DesignHeight="300" d:DesignWidth="300">
 	<Grid>

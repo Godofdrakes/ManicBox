@@ -3,8 +3,8 @@ using System.Windows;
 using ManicBox.Common.Extensions;
 using ManicBox.Preview.View;
 using ManicBox.Preview.ViewModel;
-using ManicBox.Reactive.Services.Implementation;
-using ManicBox.Reactive.Services.Interface;
+using ManicBox.Services.Implementation;
+using ManicBox.Services.Interface;
 
 namespace ManicBox.Preview;
 

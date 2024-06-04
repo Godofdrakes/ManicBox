@@ -1,7 +1,7 @@
 ﻿using System.Reactive.Disposables;
 using ManicBox.Common.ViewModel;
 using ManicBox.Interop;
-using ManicBox.Reactive.Services.Interface;
+using ManicBox.Services.Interface;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 

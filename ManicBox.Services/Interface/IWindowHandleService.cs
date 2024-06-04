@@ -1,9 +1,9 @@
 ﻿using DynamicData;
 using ManicBox.Interop;
 using ManicBox.Interop.Common;
-using ManicBox.Reactive.ViewModel;
+using ManicBox.Services.ViewModel;
 
-namespace ManicBox.Reactive.Services.Interface;
+namespace ManicBox.Services.Interface;
 
 public interface IWindowHandleService
 {

@@ -2,8 +2,8 @@
 using System.Reactive.Disposables;
 using DynamicData;
 using ManicBox.Preview.Extensions;
-using ManicBox.Reactive.Services.Interface;
-using ManicBox.Reactive.ViewModel;
+using ManicBox.Services.Interface;
+using ManicBox.Services.ViewModel;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 

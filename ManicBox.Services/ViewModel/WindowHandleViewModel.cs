@@ -1,11 +1,11 @@
 ﻿using System.Reactive.Disposables;
 using ManicBox.Interop;
 using ManicBox.Interop.Common;
-using ManicBox.Reactive.Services.Interface;
+using ManicBox.Services.Interface;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace ManicBox.Reactive.ViewModel;
+namespace ManicBox.Services.ViewModel;
 
 public sealed class WindowHandleViewModel : ReactiveObject, IDisposable
 {
