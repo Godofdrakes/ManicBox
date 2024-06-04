@@ -1,0 +1,25 @@
+﻿<common:WindowView
+	x:Class="ManicBox.WPF.View.MonitorWindow"
+	x:TypeArguments="viewModel:MonitorWindowViewModel"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:ManicBox.WPF"
+	xmlns:viewModel="clr-namespace:ManicBox.WPF.ViewModel"
+	xmlns:control="clr-namespace:ManicBox.WPF.View.Control"
+	xmlns:common="clr-namespace:ManicBox.Common.View;assembly=ManicBox.Common"
+	mc:Ignorable="d"
+	d:DataContext="{d:DesignInstance viewModel:MonitorWindowViewModel}"
+	Title="MainWindow" Height="450" Width="800">
+	<Grid>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<control:WindowMonitorServiceView Grid.Column="0" x:Name="WindowMonitorService" />
+		<control:WindowMatchServiceView Grid.Column="1" x:Name="WindowMatchService" />
+	</Grid>
+</common:WindowView>

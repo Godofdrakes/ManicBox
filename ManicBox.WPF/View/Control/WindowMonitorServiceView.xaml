@@ -1,0 +1,34 @@
+﻿<common:UserControlView
+	x:Class="ManicBox.WPF.View.Control.WindowMonitorServiceView"
+	x:TypeArguments="services:WindowMonitorServiceViewModel"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:common="clr-namespace:ManicBox.Common.View;assembly=ManicBox.Common"
+	xmlns:services="clr-namespace:ManicBox.Services.ViewModel;assembly=ManicBox.Services"
+	mc:Ignorable="d"
+	d:DataContext="{d:DesignInstance services:WindowMonitorServiceViewModel}"
+	d:DesignHeight="300" d:DesignWidth="300">
+	<Grid>
+
+		<ListView
+			ItemsSource="{Binding Items}"
+			HorizontalContentAlignment="Stretch">
+			<ListView.ItemTemplate>
+				<DataTemplate DataType="{x:Type services:WindowHandleViewModel}">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="1*" />
+							<ColumnDefinition Width="1*" />
+						</Grid.ColumnDefinitions>
+
+						<TextBlock Grid.Column="0" Text="{Binding ProcessName}" VerticalAlignment="Center" />
+						<TextBlock Grid.Column="1" Text="{Binding WindowTitle}" VerticalAlignment="Center" />
+					</Grid>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+	</Grid>
+</common:UserControlView>

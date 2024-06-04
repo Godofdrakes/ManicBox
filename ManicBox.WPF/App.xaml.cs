@@ -15,18 +15,23 @@ public partial class App : Application
 
 	public App( IServiceProvider serviceProvider )
 	{
+		_serviceProvider = serviceProvider;
+
 		// Needed because App isn't the main entry point anymore
 		InitializeComponent();
-
-		_serviceProvider = serviceProvider;
 	}
 
 	private void App_OnStartup( object sender, StartupEventArgs e )
 	{
-		this.MainWindow = _serviceProvider.CreateWindow<MainWindow>( window =>
+		this.MainWindow = _serviceProvider.CreateWindow<MonitorWindow>( window =>
 		{
-			window.ViewModel = ActivatorUtilities.CreateInstance<MainWindowViewModel>( _serviceProvider );
+			window.ViewModel = ActivatorUtilities.CreateInstance<MonitorWindowViewModel>( _serviceProvider );
 		} );
+
+		// this.MainWindow = _serviceProvider.CreateWindow<MainWindow>( window =>
+		// {
+		// 	window.ViewModel = ActivatorUtilities.CreateInstance<MainWindowViewModel>( _serviceProvider );
+		// } );
 
 		this.MainWindow.Show();
 	}

@@ -10,7 +10,7 @@ namespace ManicBox.Services.ViewModel;
 public sealed class WindowMatchServiceViewModel : ReactiveObject, IActivatableViewModel
 {
 	public ViewModelActivator Activator { get; } = new();
-	
+
 	public ReadOnlyObservableCollection<IWindowMatchItem> Items => _items;
 
 	private readonly ReadOnlyObservableCollection<IWindowMatchItem> _items;
@@ -24,6 +24,9 @@ public sealed class WindowMatchServiceViewModel : ReactiveObject, IActivatableVi
 			.Bind( out _items )
 			.Subscribe();
 
-		this.WhenActivated( onDispose => connection.Connect().DisposeWith( onDispose ) );
+		this.WhenActivated( onDispose =>
+		{
+			connection.Connect().DisposeWith( onDispose );
+		} );
 	}
 }

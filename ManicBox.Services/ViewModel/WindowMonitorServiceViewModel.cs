@@ -1,18 +1,25 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using DynamicData;
+using ManicBox.Services.Extensions;
 using ManicBox.Services.Interface;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace ManicBox.Services.ViewModel;
 
-public sealed class WindowMonitorServiceViewModel : ReactiveObject, IDisposable
+public sealed class WindowMonitorServiceViewModel : ReactiveObject, IActivatableViewModel
 {
+	public delegate IObservable<bool> MatchPredicate( WindowHandleViewModel viewModel );
+
+	public ViewModelActivator Activator { get; } = new();
+
+	[Reactive] public MatchPredicate? Filter { get; set; }
+
 	public ReadOnlyObservableCollection<WindowHandleViewModel> Items => _items;
 
 	private readonly ReadOnlyObservableCollection<WindowHandleViewModel> _items;
-
-	private readonly CompositeDisposable _onDispose = new();
 
 	public WindowMonitorServiceViewModel()
 	{
@@ -27,13 +34,19 @@ public sealed class WindowMonitorServiceViewModel : ReactiveObject, IDisposable
 
 		windowMonitorService
 			.GetWindows()
+			.Publish( out var connection )
+			.FilterOnObservable( viewModel => this
+				.WhenAnyValue( vm => vm.Filter )
+				.Select( filter => filter?.Invoke( viewModel ) ?? NullFilter() )
+				.Switch() )
 			.Bind( out _items )
-			.Subscribe()
-			.DisposeWith( _onDispose );
+			.Subscribe();
+
+		this.WhenActivated( onDispose => connection.Connect().DisposeWith( onDispose ) );
 	}
 
-	public void Dispose()
+	private static IObservable<bool> NullFilter()
 	{
-		_onDispose.Dispose();
+		return Observable.Never<bool>().StartWith( true );
 	}
 }

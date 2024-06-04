@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using ManicBox.Common.Extensions;
+using ManicBox.Services.Implementation;
+using ManicBox.Services.Interface;
 using ManicBox.WPF.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -24,6 +26,8 @@ public static class Program
 	{
 		hostBuilder.ConfigureServices( services => services
 			.AddHostedServices( Assembly.GetExecutingAssembly() )
+			.AddSingleton<IWindowMonitorService, WindowMonitorService>()
+			.AddSingleton<IWindowMatchService, WindowMatchService>()
 			.AddSingleton<IProcessListService, ProcessListService>()
 			.AddSingleton<IProcessFilterService, ProcessFilterService>() );
 

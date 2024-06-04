@@ -22,10 +22,26 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+      <Page Update="View\Control\WindowMonitorServiceView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="View\Control\WindowMatchServiceView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="View\Window\MonitorWindow.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\ManicBox.Common\ManicBox.Common.csproj" />
+      <ProjectReference Include="..\ManicBox.Services\ManicBox.Services.csproj" />
     </ItemGroup>
 
 </Project>

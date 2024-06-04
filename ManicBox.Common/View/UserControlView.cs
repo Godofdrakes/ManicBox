@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Reactive.Disposables;
+using System.Windows;
 using System.Windows.Controls;
 using ReactiveUI;
 
@@ -36,7 +37,8 @@ public class UserControlView<TViewModel> : UserControl, IViewFor<TViewModel>
 		this.WhenActivated( d =>
 		{
 			this.WhenAnyValue( view => view.ViewModel )
-				.BindTo( this, view => view.DataContext );
+				.BindTo( this, view => view.DataContext )
+				.DisposeWith( d );
 		} );
 	}
 }
