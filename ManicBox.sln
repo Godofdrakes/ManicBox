@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManicBox.Common", "ManicBox
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManicBox.Services", "ManicBox.Services\ManicBox.Services.csproj", "{BD5A2DC5-3400-449A-B6D6-CD6C065B9156}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManicBox.Services.Test", "ManicBox.Services.Test\ManicBox.Services.Test.csproj", "{C4D80151-E8A2-4924-9297-88E63661C216}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{BD5A2DC5-3400-449A-B6D6-CD6C065B9156}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD5A2DC5-3400-449A-B6D6-CD6C065B9156}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD5A2DC5-3400-449A-B6D6-CD6C065B9156}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4D80151-E8A2-4924-9297-88E63661C216}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4D80151-E8A2-4924-9297-88E63661C216}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4D80151-E8A2-4924-9297-88E63661C216}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4D80151-E8A2-4924-9297-88E63661C216}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

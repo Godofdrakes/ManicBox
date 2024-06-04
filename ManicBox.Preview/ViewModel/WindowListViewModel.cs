@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using DynamicData;
-using ManicBox.Preview.Extensions;
+using ManicBox.Services.Extensions;
 using ManicBox.Services.Interface;
 using ManicBox.Services.ViewModel;
 using ReactiveUI;
@@ -19,10 +19,10 @@ public class WindowListViewModel : ReactiveObject, IActivatableViewModel
 
 	private readonly ReadOnlyObservableCollection<WindowHandleViewModel> _windows;
 
-	public WindowListViewModel( IWindowHandleService windowHandleService )
+	public WindowListViewModel( IWindowMonitorService windowMonitorService )
 	{
-		windowHandleService
-			.EnumerateWindows()
+		windowMonitorService
+			.GetWindows()
 			.Publish( out var connection )
 			.Bind( out _windows )
 			.Subscribe();

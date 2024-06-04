@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using ManicBox.Interop;
 using ManicBox.Interop.Common;
 using ManicBox.Preview.Extensions;
+using ManicBox.Services.Extensions;
 using ManicBox.Services.ViewModel;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;

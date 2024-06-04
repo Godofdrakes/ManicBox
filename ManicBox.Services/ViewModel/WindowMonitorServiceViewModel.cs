@@ -6,7 +6,7 @@ using ReactiveUI;
 
 namespace ManicBox.Services.ViewModel;
 
-public sealed class WindowListViewModel : ReactiveObject, IDisposable
+public sealed class WindowMonitorServiceViewModel : ReactiveObject, IDisposable
 {
 	public ReadOnlyObservableCollection<WindowHandleViewModel> Items => _items;
 
@@ -14,19 +14,19 @@ public sealed class WindowListViewModel : ReactiveObject, IDisposable
 
 	private readonly CompositeDisposable _onDispose = new();
 
-	public WindowListViewModel()
+	public WindowMonitorServiceViewModel()
 	{
 		// Does nothing. Used for design-time data and mockups.
 
 		_items = ReadOnlyObservableCollection<WindowHandleViewModel>.Empty;
 	}
 
-	public WindowListViewModel( IWindowHandleService windowHandleService )
+	public WindowMonitorServiceViewModel( IWindowMonitorService windowMonitorService )
 	{
-		ArgumentNullException.ThrowIfNull( windowHandleService );
+		ArgumentNullException.ThrowIfNull( windowMonitorService );
 
-		windowHandleService
-			.EnumerateWindows()
+		windowMonitorService
+			.GetWindows()
 			.Bind( out _items )
 			.Subscribe()
 			.DisposeWith( _onDispose );

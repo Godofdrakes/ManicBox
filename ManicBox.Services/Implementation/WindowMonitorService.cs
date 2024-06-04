@@ -1,4 +1,5 @@
-﻿using System.Reactive.Disposables;
+﻿using System.Collections.Concurrent;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DynamicData;
 using ManicBox.Interop;
@@ -9,7 +10,7 @@ using ReactiveUI;
 
 namespace ManicBox.Services.Implementation;
 
-public sealed class WindowHandleService : IWindowHandleService
+public sealed class WindowMonitorService : IWindowMonitorService
 {
 	private readonly IObservable<HWND> _windowMoveSize;
 	private readonly IObservable<HWND> _windowTitleChange;
@@ -17,7 +18,7 @@ public sealed class WindowHandleService : IWindowHandleService
 
 	private readonly IObservable<IChangeSet<WindowHandleViewModel, HWND>> _windowViewModels;
 
-	public WindowHandleService()
+	public WindowMonitorService()
 	{
 		_windowMoveSize = User32.OnWindowMoveSize()
 			.SubscribeOn( RxApp.MainThreadScheduler )
@@ -61,7 +62,30 @@ public sealed class WindowHandleService : IWindowHandleService
 					return onDispose;
 				},
 				hwnd => hwnd )
-			.Transform( hWnd => new WindowHandleViewModel( hWnd, this ) )
+			.Transform( hWnd =>
+			{
+				var viewModel = new WindowHandleViewModel()
+				{
+					Handle = hWnd
+				};
+
+				viewModel.WithDisposables( onDispose =>
+				{
+					this.OnTitleChange( viewModel.Handle )
+						.BindTo( viewModel, vm => vm.WindowTitle )
+						.DisposeWith( onDispose );
+
+					this.OnMoveSize( viewModel.Handle )
+						.BindTo( viewModel, vm => vm.WindowBounds )
+						.DisposeWith( onDispose );
+
+					this.IsForeground( viewModel.Handle )
+						.BindTo( viewModel, vm => vm.IsForegroundWindow )
+						.DisposeWith( onDispose );
+				} );
+
+				return viewModel;
+			} )
 			.DisposeMany()
 			.SubscribeOn( RxApp.MainThreadScheduler )
 			.ObserveOn( RxApp.MainThreadScheduler )
@@ -69,7 +93,7 @@ public sealed class WindowHandleService : IWindowHandleService
 			.RefCount();
 	}
 
-	public IObservable<IChangeSet<WindowHandleViewModel, HWND>> EnumerateWindows()
+	public IObservable<IChangeSet<WindowHandleViewModel, HWND>> GetWindows()
 	{
 		return _windowViewModels;
 	}

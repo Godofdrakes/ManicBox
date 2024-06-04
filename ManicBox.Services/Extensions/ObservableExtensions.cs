@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace ManicBox.Preview.Extensions;
+namespace ManicBox.Services.Extensions;
 
 public static class ObservableExtensions
 {

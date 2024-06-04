@@ -15,9 +15,9 @@ public class MainWindowViewModel : WindowViewModel
 
 	public ThumbnailViewModel ThumbnailViewModel { get; }
 
-	public MainWindowViewModel( IWindowHandleService windowHandleService )
+	public MainWindowViewModel( IWindowMonitorService windowMonitorService )
 	{
-		WindowListViewModel = new WindowListViewModel( windowHandleService );
+		WindowListViewModel = new WindowListViewModel( windowMonitorService );
 
 		ThumbnailViewModel = new ThumbnailViewModel();
 

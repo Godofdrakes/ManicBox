@@ -13,7 +13,7 @@ namespace ManicBox.Preview;
 /// </summary>
 public partial class App : Application
 {
-	private readonly IWindowHandleService _windowHandleService = new WindowHandleService();
+	private readonly IWindowMonitorService _windowMonitorService = new WindowMonitorService();
 	private readonly IServiceProvider _serviceProvider;
 
 	public App( IServiceProvider serviceProvider )
@@ -30,7 +30,7 @@ public partial class App : Application
 	{
 		this.MainWindow = _serviceProvider.CreateWindow<MainWindow>( window =>
 		{
-			window.ViewModel = new MainWindowViewModel( _windowHandleService )
+			window.ViewModel = new MainWindowViewModel( _windowMonitorService )
 			{
 				Title = Assembly.GetExecutingAssembly().FullName
 			};
