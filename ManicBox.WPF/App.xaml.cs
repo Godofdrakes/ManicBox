@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using ManicBox.Common.Extensions;
 using ManicBox.WPF.View;
 using ManicBox.WPF.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,10 +23,10 @@ public partial class App : Application
 
 	private void App_OnStartup( object sender, StartupEventArgs e )
 	{
-		this.MainWindow = new MainWindow
+		this.MainWindow = _serviceProvider.CreateWindow<MainWindow>( window =>
 		{
-			ViewModel = ActivatorUtilities.CreateInstance<MainWindowViewModel>( _serviceProvider )
-		};
+			window.ViewModel = ActivatorUtilities.CreateInstance<MainWindowViewModel>( _serviceProvider );
+		} );
 
 		this.MainWindow.Show();
 	}

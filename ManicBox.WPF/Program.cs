@@ -1,14 +1,9 @@
 ﻿using System.Reflection;
-using System.Windows;
-using Dapplo.Microsoft.Extensions.Hosting.Wpf;
 using ManicBox.Common.Extensions;
 using ManicBox.WPF.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using ReactiveUI;
-using Splat;
-using Splat.Microsoft.Extensions.DependencyInjection;
 
 namespace ManicBox.WPF;
 
